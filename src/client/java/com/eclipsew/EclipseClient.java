@@ -19,13 +19,10 @@ public class EclipseClient implements ClientModInitializer {
 		ClientTickEvents.END_CLIENT_TICK.register((minecraft_ -> {
 			player = minecraft_.player;
 			minecraft = minecraft_;
-			Integer ifps = minecraft.getFps();
-			Color color = Color.CYAN;
 			if (player != null) {
 				if (fps) {
-					Component component = Component.literal(String.valueOf(ifps))
-						.withColor(color.getRGB()).withoutShadow();
-					player.displayClientMessage(component, true);
+					player.displayClientMessage(Component.literal(String.valueOf(minecraft_.getFps()))
+							.withColor(Color.CYAN.getRGB()), true);
 				}
 				if (sprint) {
 					player.setSprinting(true);
