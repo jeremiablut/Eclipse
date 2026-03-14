@@ -13,7 +13,7 @@ import java.awt.*;
 public class EclipseClient implements ClientModInitializer {
 	private Minecraft minecraft;
 	private Player player;
-	private boolean fps = false, sprint = true, sneak = false;
+	private boolean fps = false, sprint = true;
 	@Override
 	public void onInitializeClient() {
 		ClientTickEvents.END_CLIENT_TICK.register((minecraft_ -> {
@@ -47,6 +47,20 @@ public class EclipseClient implements ClientModInitializer {
 				sprint = !sprint;
 				Component component = Component.literal("SPRINT toggled to " + sprint);
 				player.displayClientMessage(component, false);
+				return 1;
+			}));
+		});
+
+		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
+			dispatcher.register(ClientCommandManager.literal("crash").executes(context -> {
+				minecraft.stop();
+				return 1;
+			}));
+		});
+
+		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
+			dispatcher.register(ClientCommandManager.literal("renderreset").executes(context -> {
+				minecraft.gameRenderer.resetData();
 				return 1;
 			}));
 		});
