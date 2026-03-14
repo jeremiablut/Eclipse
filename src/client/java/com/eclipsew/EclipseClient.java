@@ -30,9 +30,6 @@ public class EclipseClient implements ClientModInitializer {
 				if (sprint) {
 					player.setSprinting(true);
 				}
-				if (sneak) {
-					player.setShiftKeyDown(true);
-				}
 			}
 		}));
 
@@ -49,15 +46,6 @@ public class EclipseClient implements ClientModInitializer {
 			dispatcher.register(ClientCommandManager.literal("toggle.sprint").executes(context -> {
 				sprint = !sprint;
 				Component component = Component.literal("SPRINT toggled to " + sprint);
-				player.displayClientMessage(component, false);
-				return 1;
-			}));
-		});
-
-		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
-			dispatcher.register(ClientCommandManager.literal("toggle.sneak").executes(context -> {
-				sneak = !sneak;
-				Component component = Component.literal("SNEAK toggled to " + sneak);
 				player.displayClientMessage(component, false);
 				return 1;
 			}));
