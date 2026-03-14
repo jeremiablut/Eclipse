@@ -1,10 +1,10 @@
 ### Eclipse Client
 This Clientside Mod is meant as a library of all stuff I made. Because of Beta there are not many features (listed below). This mod is still work in progress.
 
--**toggle.fps** shows fps count in actionbar (default on false)
+-**/toggle.fps** shows fps count in actionbar (default on false)
 
--**toggle.sprint** toggles sprinting (default on true)
+-**/toggle.sprint** toggles sprinting (default on true)
 
--**crash** just crashes your game
+-**/crash** just crashes your game
 
--**renderreset** resets the renderengine
+-**/renderreset** resets the renderengine
