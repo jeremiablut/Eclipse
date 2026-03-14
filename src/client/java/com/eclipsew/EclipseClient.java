@@ -1,0 +1,39 @@
+package com.eclipsew;
+
+import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+
+import java.awt.*;
+
+public class EclipseClient implements ClientModInitializer {
+	private Minecraft minecraft;
+	private Player player;
+	private boolean fps = false;
+	@Override
+	public void onInitializeClient() {
+		ClientTickEvents.END_CLIENT_TICK.register((minecraft_ -> {
+			player = minecraft_.player;
+			minecraft = minecraft_;
+			Integer ifps = minecraft.getFps();
+			Color color = Color.CYAN;
+			if (fps && player != null) {
+				net.minecraft.network.chat.Component component = Component.literal(String.valueOf(ifps))
+						.withColor(color.getRGB()).withoutShadow();
+				player.displayClientMessage(component, true);
+			}
+		}));
+
+		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
+			dispatcher.register(ClientCommandManager.literal("toggle.fps").executes(context -> {
+                fps = !fps;
+				return 1;
+			}));
+		});
+
+	}
+}
