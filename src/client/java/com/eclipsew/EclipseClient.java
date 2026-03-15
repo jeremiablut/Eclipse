@@ -33,6 +33,7 @@ public class EclipseClient implements ClientModInitializer {
 				activePlayer.setSprinting(true);
 			}
 		}));
+
 		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
 			dispatcher.register(ClientCommandManager.literal("toggle.fps").executes(context -> {
 				fps = !fps;
