@@ -27,4 +27,4 @@ for those who don't know what that means, here is a list:
 > - no fov effect (this makes that if u accelerate your fov is not changing)
 > - no entity shadows (disables the entity shadows, what can cause performence impacts)
 >
-**The GitHub repository will be on a newer status then Modrinth's page!!!**
+**The GitHub repository will be on a newer status than Modrinth's page!!!**
