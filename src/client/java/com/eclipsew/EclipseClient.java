@@ -6,77 +6,55 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallba
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
-
-import java.awt.*;
 
 public class EclipseClient implements ClientModInitializer {
-	private Minecraft minecraft;
-	private Player player;
-	private boolean fps = false, sprint = true, pvp = true;
+	private boolean fps = false, sprint = true;
+	private void setPvp() {
+		Minecraft.getInstance().options.bobView().set(false);
+		Minecraft.getInstance().options.vignette().set(false);
+		Minecraft.getInstance().options.damageTiltStrength().set(0d);
+		Minecraft.getInstance().options.narratorHotkey().set(false);
+		Minecraft.getInstance().options.enableVsync().set(false);
+		Minecraft.getInstance().options.fovEffectScale().set(0d);
+		Minecraft.getInstance().options.entityShadows().set(false);
+		Minecraft.getInstance().options.save();
+	}
 	@Override
 	public void onInitializeClient() {
-		ClientTickEvents.END_CLIENT_TICK.register((minecraft_ -> {
-			player = minecraft_.player;
-			minecraft = minecraft_;
-			if (player != null) {
-				if (fps) {
-					player.displayClientMessage(Component.literal(String.valueOf(minecraft_.getFps()))
-							.withColor(Color.CYAN.getRGB()), true);
-				}
-				if (sprint) {
-					player.setSprinting(true);
-				}
-				if (pvp) {
-					minecraft.options.bobView().set(!pvp);
-					minecraft.options.vignette().set(!pvp);
-					minecraft.options.damageTiltStrength().set(0d);
-					minecraft.options.narratorHotkey().set(!pvp);
-					minecraft.options.enableVsync().set(!pvp);
-					minecraft.options.fovEffectScale().set(0d);
-					minecraft.options.entityShadows().set(!pvp);
-				}
+		ClientTickEvents.END_CLIENT_TICK.register((minecraft -> {
+			var activePlayer = minecraft.player;
+
+			if (activePlayer == null) return;
+
+			if (fps) {
+				activePlayer.displayClientMessage(Component.literal(String.valueOf(minecraft.getFps())).withColor(0x00FFFF), true);
+			}
+			if (sprint) {
+				activePlayer.setSprinting(true);
 			}
 		}));
 		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
 			dispatcher.register(ClientCommandManager.literal("toggle.fps").executes(context -> {
-                fps = !fps;
-				Component component = Component.literal("FPS toggled to " + fps);
-				player.displayClientMessage(component, false);
+				fps = !fps;
+				context.getSource().sendFeedback(Component.literal("FPS toggled to " + fps));
 				return 1;
 			}));
-		});
 
-		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
 			dispatcher.register(ClientCommandManager.literal("toggle.sprint").executes(context -> {
 				sprint = !sprint;
-				Component component = Component.literal("SPRINT toggled to " + sprint);
-				player.displayClientMessage(component, false);
+				context.getSource().sendFeedback(Component.literal("Sprint toggled to " + sprint));
 				return 1;
 			}));
-		});
 
-		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
-			dispatcher.register(ClientCommandManager.literal("crash").executes(context -> {
-				minecraft.stop();
-				return 1;
-			}));
-		});
-
-		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
 			dispatcher.register(ClientCommandManager.literal("renderreset").executes(context -> {
-				minecraft.gameRenderer.resetData();
-				Component component = Component.literal("renderengine reseted");
-				player.displayClientMessage(component, false);
+				Minecraft.getInstance().gameRenderer.resetData();
+				context.getSource().sendFeedback(Component.literal("renderengine reseted"));
 				return 1;
 			}));
-		});
 
-		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
-			dispatcher.register(ClientCommandManager.literal("toggle.pvp").executes(context -> {
-				pvp = !pvp;
-				Component component = Component.literal("PVP toggled to " + pvp);
-				player.displayClientMessage(component, false);
+			dispatcher.register(ClientCommandManager.literal("enable.pvp").executes(context -> {
+				setPvp();
+				context.getSource().sendFeedback(Component.literal("PVP options set"));
 				return 1;
 			}));
 		});
