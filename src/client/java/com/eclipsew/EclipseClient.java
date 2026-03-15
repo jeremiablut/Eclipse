@@ -28,14 +28,14 @@ public class EclipseClient implements ClientModInitializer {
 				if (sprint) {
 					player.setSprinting(true);
 				}
-				minecraft.options.bobView().set(!pvp);
-				minecraft.options.vignette().set(!pvp);
-				minecraft.options.damageTiltStrength().set(0d);
-				if (!pvp) {
-					minecraft.options.fovEffectScale().set(100d);
-				}
-				else {
+				if (pvp) {
+					minecraft.options.bobView().set(!pvp);
+					minecraft.options.vignette().set(!pvp);
+					minecraft.options.damageTiltStrength().set(0d);
+					minecraft.options.narratorHotkey().set(!pvp);
+					minecraft.options.enableVsync().set(!pvp);
 					minecraft.options.fovEffectScale().set(0d);
+					minecraft.options.damageTiltStrength().set(0d);
 				}
 			}
 		}));
