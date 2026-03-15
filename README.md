@@ -9,14 +9,14 @@ This _Clientside_ Mod is meant as a collection of client-side utilities. This mo
 ### PVP MODE
 the **PVP MODE** sets different Minecraft options to the best values for pvp.
 ```
->Minecraft.getInstance().options.bobView().set(false);
->Minecraft.getInstance().options.vignette().set(false);
->Minecraft.getInstance().options.damageTiltStrength().set(0d);
->Minecraft.getInstance().options.narratorHotkey().set(false);
->Minecraft.getInstance().options.enableVsync().set(false);
->Minecraft.getInstance().options.fovEffectScale().set(0d);
->Minecraft.getInstance().options.entityShadows().set(false);
->Minecraft.getInstance().options.save();
+Minecraft.getInstance().options.bobView().set(false);
+Minecraft.getInstance().options.vignette().set(false);
+Minecraft.getInstance().options.damageTiltStrength().set(0d);
+Minecraft.getInstance().options.narratorHotkey().set(false);
+Minecraft.getInstance().options.enableVsync().set(false);
+Minecraft.getInstance().options.fovEffectScale().set(0d);
+Minecraft.getInstance().options.entityShadows().set(false);
+Minecraft.getInstance().options.save();
 ```
 for those who don't know what that means, here is a list:
 > - no bob (no camerashake while walking)
@@ -26,5 +26,5 @@ for those who don't know what that means, here is a list:
 > - no Vsync
 > - no fov effect (this makes that if u accelerate your fov is not changing)
 > - no entity shadows (disables the entity shadows, what can cause performance impacts)
-> - 
+
 **The GitHub repository will be on a newer status then Modrinth's page**
