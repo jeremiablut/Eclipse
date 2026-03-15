@@ -58,6 +58,8 @@ public class EclipseClient implements ClientModInitializer {
 		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
 			dispatcher.register(ClientCommandManager.literal("renderreset").executes(context -> {
 				minecraft.gameRenderer.resetData();
+				Component component = Component.literal("SPRINT toggled to " + sprint);
+				player.displayClientMessage(component, false);
 				return 1;
 			}));
 		});
