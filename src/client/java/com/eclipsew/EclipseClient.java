@@ -9,7 +9,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 
 import java.awt.*;
-import java.util.Optional;
 
 public class EclipseClient implements ClientModInitializer {
 	private Minecraft minecraft;
