@@ -9,11 +9,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 
 import java.awt.*;
+import java.util.Optional;
 
 public class EclipseClient implements ClientModInitializer {
 	private Minecraft minecraft;
 	private Player player;
-	private boolean fps = false, sprint = true;
+	private boolean fps = false, sprint = true, pvp = true;
 	@Override
 	public void onInitializeClient() {
 		ClientTickEvents.END_CLIENT_TICK.register((minecraft_ -> {
@@ -27,9 +28,17 @@ public class EclipseClient implements ClientModInitializer {
 				if (sprint) {
 					player.setSprinting(true);
 				}
+				minecraft.options.bobView().set(!pvp);
+				minecraft.options.vignette().set(!pvp);
+				minecraft.options.damageTiltStrength().set(0d);
+				if (!pvp) {
+					minecraft.options.fovEffectScale().set(100d);
+				}
+				else {
+					minecraft.options.fovEffectScale().set(0d);
+				}
 			}
 		}));
-
 		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
 			dispatcher.register(ClientCommandManager.literal("toggle.fps").executes(context -> {
                 fps = !fps;
@@ -59,6 +68,15 @@ public class EclipseClient implements ClientModInitializer {
 			dispatcher.register(ClientCommandManager.literal("renderreset").executes(context -> {
 				minecraft.gameRenderer.resetData();
 				Component component = Component.literal("renderengine reseted");
+				player.displayClientMessage(component, false);
+				return 1;
+			}));
+		});
+
+		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
+			dispatcher.register(ClientCommandManager.literal("toggle.pvp").executes(context -> {
+				pvp = !pvp;
+				Component component = Component.literal("PVP toggled to " + pvp);
 				player.displayClientMessage(component, false);
 				return 1;
 			}));
