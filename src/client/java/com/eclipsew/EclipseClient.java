@@ -34,7 +34,6 @@ public class EclipseClient implements ClientModInitializer {
 					minecraft.options.narratorHotkey().set(!pvp);
 					minecraft.options.enableVsync().set(!pvp);
 					minecraft.options.fovEffectScale().set(0d);
-					minecraft.options.damageTiltStrength().set(0d);
 					minecraft.options.entityShadows().set(!pvp);
 				}
 			}
