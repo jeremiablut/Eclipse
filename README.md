@@ -19,13 +19,14 @@ Minecraft.getInstance().options.fovEffectScale().set(0d);
 Minecraft.getInstance().options.entityShadows().set(false);
 Minecraft.getInstance().options.save();
 ```
+
 for those who don't know what that means, here is a list:
 > - no bob (no camerashake while walking)
 > - no vignette (no black borders)
-> - no damagetilt (when u get damage your camera is not shaking)
+> - no damagetilt (when you get damage your camera is not shaking)
 > - no narratorHotkey (disables the narrator hot key)
 > - no Vsync
-> - no fov effect (this makes that if u accelerate your fov is not changing)
+> - no fov effect (this makes that if you accelerate your fov is not changing)
 > - no entity shadows (disables the entity shadows, what can cause performance impacts)
 
 ### FREECAM
