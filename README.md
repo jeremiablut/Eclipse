@@ -8,16 +8,8 @@ This _Clientside_ Mod is meant as a collection of client-side utilities. This mo
 
 ### PVP MODE
 the **PVP MODE** sets different Minecraft options to the best values for pvp.
-```
-Minecraft.getInstance().options.bobView().set(false);
-Minecraft.getInstance().options.vignette().set(false);
-Minecraft.getInstance().options.damageTiltStrength().set(0d);
-Minecraft.getInstance().options.narratorHotkey().set(false);
-Minecraft.getInstance().options.enableVsync().set(false);
-Minecraft.getInstance().options.fovEffectScale().set(0d);
-Minecraft.getInstance().options.entityShadows().set(false);
-Minecraft.getInstance().options.save();
-```
+<img width="2820" height="1496" alt="ray-so-export" src="https://github.com/user-attachments/assets/aba13cd5-0fb7-4a93-ac49-f2501d18468d" />
+
 for those who don't know what that means, here is a list:
 > - no bob (no camerashake while walking)
 > - no vignette (no black borders)
