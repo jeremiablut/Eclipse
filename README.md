@@ -36,4 +36,6 @@ the **FREECAM** is still in development. (How it works below)
 > 2. Sets the PlayerCamera in the InteractionEntity
 > 3. Every tick the rot of the InteractionEntity is synced with the player rot
 
+**WARNING:** Client World will crash if you punch while in freecam 
+
 **The GitHub repository will be on a newer status then Modrinth's page**
