@@ -3,8 +3,9 @@ This _Clientside_ Mod is meant as a collection of client-side utilities. This mo
 ## Features:
 >- **/toggle.fps** shows fps count in actionbar (default on false)
 >- **/toggle.sprint** toggles sprinting (default on true)
->- **/renderreset** resets the Renderengine
+>- **/reload** reloads the Recourcepacks
 >- **/enable.pvp** enables pvp mode, more info below (default on true)
+>- **/freecam** toggles freecam, more info below (default on false)
 
 ### PVP MODE
 the **PVP MODE** sets different Minecraft options to the best values for pvp.
@@ -26,5 +27,12 @@ for those who don't know what that means, here is a list:
 > - no Vsync
 > - no fov effect (this makes that if u accelerate your fov is not changing)
 > - no entity shadows (disables the entity shadows, what can cause performance impacts)
+
+### FREECAM
+the **FREECAM** is still in development. (How it works below)
+
+> 1. Summons an InteractionEntity
+> 2. Sets the PlayerCamera in the InteractionEntity
+> 3. Every tick the rot of the InteractionEntity is synced with the player rot
 
 **The GitHub repository will be on a newer status then Modrinth's page**
