@@ -1,11 +1,11 @@
 # **Eclipse**
 This _Clientside_ Mod is meant as a collection of client-side utilities. This mod is still work in progress.
 ## Features:
->- **/toggle.fps** shows fps count in actionbar (default on false)
->- **/toggle.sprint** toggles sprinting (default on true)
+>- **/toggle.fps** shows fps count in actionbar (defaults to false)
+>- **/toggle.sprint** toggles sprinting (defaults to true)
 >- **/reload** reloads the Recourcepacks
->- **/enable.pvp** enables pvp mode, more info below (default on true)
->- **/freecam** toggles freecam, more info below (default on false)
+>- **/enable.pvp** enables pvp mode, more info below (defaults to true)
+>- **/freecam** toggles freecam, more info below (defaults to false)
 
 ### PVP MODE
 the **PVP MODE** sets different Minecraft options to the best values for pvp.
@@ -66,11 +66,22 @@ the **FREECAM** is still in development. (How it works below)
 - [x] Freecam Forward
 - [x] Freecam Backward
 
-## Final Freecam UPDATE 1.0.4
+
+- 
+-
+-
+## Final Freecam UPDATE 1.x.x
 - [ ] Freecam Left
 - [ ] Freecam Right
+- [ ] Configurable Keys
 
-In case of you having any brillant ideas, please submit them hear:
+## Fullbright UPDATE x.x.x
+- [ ] Fullbright
+
+## Modmenu UPDATE x.x.x
+- [ ] Modmenu Configuration
+
+In case of you having any brilliant ideas, please submit them hear:
 https://docs.google.com/forms/d/e/1FAIpQLSdC_3SM02lKfVTV1IyXYU7uZB4V9yEyLHUcJbVV_DdIoP3lsA/viewform?usp=publish-editor
 
 **The GitHub repository will be on a newer status then Modrinth's page**
