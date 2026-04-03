@@ -48,8 +48,6 @@ the **FREECAM** is still in development. (How it works below)
 
 **WARNING:** Client World will crash if you punch in air while in freecam
 
-**The GitHub repository will be on a newer status then Modrinth's page**
-
 ## Basic UPDATE 1.0.0
 - [x] Auto Sprinting
 - [x] Fps counter
@@ -71,3 +69,5 @@ the **FREECAM** is still in development. (How it works below)
 ## Final Freecam UPDATE 1.0.4
 - [ ] Freecam Left
 - [ ] Freecam Right
+
+**The GitHub repository will be on a newer status then Modrinth's page**
