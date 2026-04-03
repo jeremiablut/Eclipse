@@ -17,7 +17,7 @@ import org.lwjgl.glfw.GLFW;
 public class EclipseClient implements ClientModInitializer {
 	private boolean fps = false, sprint = true, freecam = false, cacheSprint, shown = false, digital = true;
 	private Interaction freecamEntity;
-	private float distance = 0.75f;
+	private final float distance = 0.75f;
 	private String status, hoursToMinutesDigital, minutesToSecondsDigital, hoursToMinutesAnalog, minutesToSecondsAnalog, timer;
 	private int ticks = 0, seconds, minutes = 0, hours = 0;
 
