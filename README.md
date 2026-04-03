@@ -6,6 +6,7 @@ This _Clientside_ Mod is meant as a collection of client-side utilities. This mo
 >- **/reload** reloads the Recourcepacks
 >- **/enable.pvp** enables pvp mode, more info below (defaults to true)
 >- **/freecam** toggles freecam, more info below (defaults to false)
+>- **/timer + expansion** more Info below
 
 ### PVP MODE
 the **PVP MODE** sets different Minecraft options to the best values for pvp.
@@ -35,6 +36,15 @@ the **FREECAM** is still in development. (How it works below)
 > 1. Summons an InteractionEntity
 > 2. Sets the PlayerCamera in the InteractionEntity
 > 3. Every tick the rot of the InteractionEntity is synced with the player rot
+
+### Timer
+The timer adds a stopwatch (*brillant*) in the actionbar.
+> - **/timer.toggle** toggles timer
+> - **/timer.start** starts timer
+> - **/timer.stop** stops timer
+> - **/timer.restart** restarts the timer
+> - **/timer.digital** sets the timermode to digital
+> - **/timer.analog** sets the timermode to analog
 
 ### CONTROLS:
 > Freecam:
@@ -66,10 +76,12 @@ the **FREECAM** is still in development. (How it works below)
 - [x] Freecam Forward
 - [x] Freecam Backward
 
+## Timer UPDATE 1.0.4
+- [x] Timer added
+- [x] Timer  controls
+- [x] Timer analog and digital
 
-- 
--
--
+**.  .  .**
 ## Final Freecam UPDATE 1.x.x
 - [ ] Freecam Left
 - [ ] Freecam Right
