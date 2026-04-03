@@ -109,29 +109,27 @@ public class EclipseClient implements ClientModInitializer {
 					freecamEntity.setPos(freecamEntity.getX() + (look.x * -distance), freecamEntity.getY() + (look.y * -distance), freecamEntity.getZ() + (look.z * -distance));
 				}
 			}
-			{
-				seconds = ticks / 20;
+			seconds = ticks / 20;
 
-				if (status == "started") ticks++;
+			if (status == "started") ticks++;
 
-				else if (status == "restarted") {
-					ticks = 0;
+			else if (status == "restarted") {
+				ticks = 0;
+				minutes = 0;
+				hours = 0;
+			}
+			genTimer();
+			Component component = Component.nullToEmpty(timer)
+					.copy()
+					.withStyle(style -> style.withColor(0x0000AA)
+							.withShadowColor(0x000000));
+			if (shown) minecraft.player.displayClientMessage(component, true);
+			if (seconds >= 60) {
+				ticks = 0;
+				if (minutes < 60) minutes++;
+				else {
 					minutes = 0;
-					hours = 0;
-				}
-				genTimer();
-				Component component = Component.nullToEmpty(timer)
-						.copy()
-						.withStyle(style -> style.withColor(0x0000AA)
-								.withShadowColor(0x000000));
-				if (shown) minecraft.player.displayClientMessage(component, true);
-				if (seconds >= 60) {
-					ticks = 0;
-					if (minutes < 60) minutes++;
-					else {
-						minutes = 0;
-						hours++;
-					}
+					hours++;
 				}
 			}
 		}));
