@@ -17,7 +17,7 @@ import org.lwjgl.glfw.GLFW;
 public class EclipseClient implements ClientModInitializer {
 	private boolean fps = false, sprint = true, freecam = false, cacheSprint, shown = false, digital = true;
 	private Interaction freecamEntity;
-	private float distance = 0.75f;
+	private float distance = 1f;
 	private String status, hoursToMinutesDigital, minutesToSecondsDigital, hoursToMinutesAnalog, minutesToSecondsAnalog, timer;
 	private int ticks = 0, seconds, minutes = 0, hours = 0;
 
@@ -33,23 +33,26 @@ public class EclipseClient implements ClientModInitializer {
 	}
 
 	public void genTimer() {
-
 		if (minutes < 10) {
 			hoursToMinutesDigital = ":0";
 			hoursToMinutesAnalog = "h 0";
 		}
+
 		else {
 			hoursToMinutesDigital = ":";
 			hoursToMinutesAnalog = "h ";
 		}
+
 		if (seconds < 10) {
 			minutesToSecondsDigital = ":0";
 			minutesToSecondsAnalog = "min 0";
 		}
+
 		else {
 			minutesToSecondsDigital = ":";
 			minutesToSecondsAnalog = "min ";
 		}
+
 		if (digital) {
 			if (hours == 0) {
 				if (minutes == 0) {
@@ -75,8 +78,11 @@ public class EclipseClient implements ClientModInitializer {
 			else {
 				timer = hours + hoursToMinutesAnalog + minutes + minutesToSecondsAnalog + seconds + "s";
 			}
+
 		}
+
 	}
+
 
 	@Override
 	public void onInitializeClient() {
@@ -94,42 +100,61 @@ public class EclipseClient implements ClientModInitializer {
 			if (freecam) {
 				freecamEntity.setXRot(minecraft.player.getXRot());
 				freecamEntity.setYRot(minecraft.player.getYRot());
-				if (activePlayer.isShiftKeyDown()) {
-					freecamEntity.setPos(freecamEntity.getX(), freecamEntity.getY() - 1, freecamEntity.getZ());
-				}
+
+				if (activePlayer.isShiftKeyDown()) distance = 2;
+				else distance = 1;
+
 				if (InputConstants.isKeyDown(window, GLFW.GLFW_KEY_SPACE)) {
 					freecamEntity.setPos(freecamEntity.getX(), freecamEntity.getY() + 1, freecamEntity.getZ());
 				}
+
 				if (InputConstants.isKeyDown(window, GLFW.GLFW_KEY_W)) {
 					Vec3 look = freecamEntity.getLookAngle();
 					freecamEntity.setPos(freecamEntity.getX() + (look.x * distance), freecamEntity.getY() + (look.y * distance), freecamEntity.getZ() + (look.z * distance));
 				}
+
 				if (InputConstants.isKeyDown(window, GLFW.GLFW_KEY_S)) {
 					Vec3 look = freecamEntity.getLookAngle();
 					freecamEntity.setPos(freecamEntity.getX() + (look.x * -distance), freecamEntity.getY() + (look.y * -distance), freecamEntity.getZ() + (look.z * -distance));
 				}
-			}
-			seconds = ticks / 20;
 
-			if (status == "started") ticks++;
+				if (InputConstants.isKeyDown(window, GLFW.GLFW_KEY_A)) {
+					Vec3 look = freecamEntity.getLookAngle();
+					Vec3 right = new Vec3(-look.z, 0, look.x).normalize();
+					freecamEntity.setPos(freecamEntity.getX() - (right.x * distance), freecamEntity.getY(), freecamEntity.getZ() - (right.z * distance));
+				}
 
-			else if (status == "restarted") {
-				ticks = 0;
-				minutes = 0;
-				hours = 0;
+
+				if (InputConstants.isKeyDown(window, GLFW.GLFW_KEY_D)) {
+					Vec3 look = freecamEntity.getLookAngle();
+					Vec3 right = new Vec3(-look.z, 0, look.x).normalize();
+					freecamEntity.setPos(freecamEntity.getX() + (right.x * distance), freecamEntity.getY(), freecamEntity.getZ() + (right.z * distance));
+				}
 			}
-			genTimer();
-			Component component = Component.nullToEmpty(timer)
-					.copy()
-					.withStyle(style -> style.withColor(0x0000AA)
-							.withShadowColor(0x000000));
-			if (shown) minecraft.player.displayClientMessage(component, true);
-			if (seconds >= 60) {
-				ticks = 0;
-				if (minutes < 60) minutes++;
-				else {
+
+			{
+				seconds = ticks / 20;
+
+				if (status == "started") ticks++;
+
+				else if (status == "restarted") {
+					ticks = 0;
 					minutes = 0;
-					hours++;
+					hours = 0;
+				}
+				genTimer();
+				Component component = Component.nullToEmpty(timer)
+						.copy()
+						.withStyle(style -> style.withColor(0x0000AA)
+						.withShadowColor(0x000000));
+				if (shown) minecraft.player.displayClientMessage(component, true);
+				if (seconds >= 60) {
+					ticks = 0;
+					if (minutes < 60) minutes++;
+					else {
+						minutes = 0;
+						hours++;
+					}
 				}
 			}
 		}));

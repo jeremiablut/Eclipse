@@ -74,7 +74,7 @@ The timer adds a stopwatch (*brillant*) in the actionbar.
 - [x] Freecam Basics
 - [x] Freecam Up Move
 - [x] Freecam Down Move
-- [x] Resetrenderengine rewrote to reload
+- [x] Resetrenderengine rewrote
 
 ## Freecam Movement UPDATE 1.0.3
 - [x] Freecam Forward
@@ -85,7 +85,7 @@ The timer adds a stopwatch (*brillant*) in the actionbar.
 - [x] Timer  controls
 - [x] Timer analog and digital
 
-## Final Freecam UPDATE 1.0.5
+## Final Freecam UPDATE 1.0.5.2
 - [x] Freecam Left
 - [x] Freecam Right
 
