@@ -70,4 +70,7 @@ the **FREECAM** is still in development. (How it works below)
 - [ ] Freecam Left
 - [ ] Freecam Right
 
+In case of you having any brillant ideas, please submit them hear:
+https://docs.google.com/forms/d/e/1FAIpQLSdC_3SM02lKfVTV1IyXYU7uZB4V9yEyLHUcJbVV_DdIoP3lsA/viewform?usp=publish-editor
+
 **The GitHub repository will be on a newer status then Modrinth's page**
