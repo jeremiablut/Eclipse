@@ -47,16 +47,20 @@ The timer adds a stopwatch (*brillant*) in the actionbar.
 > - **/timer.analog** sets the timermode to analog
 
 ### CONTROLS:
-> Freecam:
+#### > **Freecam:**
 > > W - Forward
 >
-> > S - Backward 
+> > A - Left
 >
+> > S - Backward
+>
+> > D - Right
+> 
 > > SPACE - Up
 >
-> > Shift - Down
+> > Shift - Faster
 
-**WARNING:** Client World will crash if you punch in air while in freecam
+**WARNING:** Client World will crash if you punch an entity while in freecam
 
 ## Basic UPDATE 1.0.0
 - [x] Auto Sprinting
@@ -70,7 +74,7 @@ The timer adds a stopwatch (*brillant*) in the actionbar.
 - [x] Freecam Basics
 - [x] Freecam Up Move
 - [x] Freecam Down Move
-- [x] Resetrenderengine rewrote
+- [x] Resetrenderengine rewrote to reload
 
 ## Freecam Movement UPDATE 1.0.3
 - [x] Freecam Forward
@@ -81,11 +85,11 @@ The timer adds a stopwatch (*brillant*) in the actionbar.
 - [x] Timer  controls
 - [x] Timer analog and digital
 
+## Final Freecam UPDATE 1.0.5
+- [x] Freecam Left
+- [x] Freecam Right
+
 **.  .  .**
-## Final Freecam UPDATE 1.x.x
-- [ ] Freecam Left
-- [ ] Freecam Right
-- [ ] Configurable Keys
 
 ## Fullbright UPDATE x.x.x
 - [ ] Fullbright
@@ -93,7 +97,7 @@ The timer adds a stopwatch (*brillant*) in the actionbar.
 ## Modmenu UPDATE x.x.x
 - [ ] Modmenu Configuration
 
-In case of you having any brilliant ideas, please submit them hear:
+In case of you having any brilliant ideas, please submit them here:
 https://docs.google.com/forms/d/e/1FAIpQLSdC_3SM02lKfVTV1IyXYU7uZB4V9yEyLHUcJbVV_DdIoP3lsA/viewform?usp=publish-editor
 
 **The GitHub repository will be on a newer status then Modrinth's page**
