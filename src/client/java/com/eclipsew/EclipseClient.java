@@ -1,5 +1,7 @@
 package com.eclipsew;
 
+import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.blaze3d.platform.Window;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
@@ -8,11 +10,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Interaction;
-import net.minecraft.world.entity.player.Player;
+import org.lwjgl.glfw.GLFW;
 
 public class EclipseClient implements ClientModInitializer {
-	private boolean fps = false, sprint = true, ran = false, freecam = false;
-	private Interaction interaction;
+	private boolean fps = false, sprint = true, freecam = false, cacheSprint;
+	private Interaction freecamEntity;
 	private void setPvp() {
 		Minecraft.getInstance().options.bobView().set(false);
 		Minecraft.getInstance().options.vignette().set(false);
@@ -37,8 +39,16 @@ public class EclipseClient implements ClientModInitializer {
 				activePlayer.setSprinting(true);
 			}
 			if (freecam) {
-				interaction.setXRot(minecraft.player.getXRot());
-				interaction.setYRot(minecraft.player.getYRot());
+				freecamEntity.setXRot(minecraft.player.getXRot());
+				freecamEntity.setYRot(minecraft.player.getYRot());
+				if (activePlayer.isShiftKeyDown()) {
+					freecamEntity.setPos(freecamEntity.getX(), freecamEntity.getY() - 1, freecamEntity.getZ());
+				}
+				Window window = Minecraft.getInstance().getWindow();
+
+				if (InputConstants.isKeyDown(window, GLFW.GLFW_KEY_SPACE)) {
+					freecamEntity.setPos(freecamEntity.getX(), freecamEntity.getY() + 1, freecamEntity.getZ());
+				}
 			}
 		}));
 
@@ -68,17 +78,27 @@ public class EclipseClient implements ClientModInitializer {
 			}));
 
 			dispatcher.register(ClientCommandManager.literal("freecam").executes(context -> {
-				interaction = new Interaction(EntityType.INTERACTION, context.getSource().getPlayer().level());
-				interaction.setPos(context.getSource().getPlayer().getX(), context.getSource().getPlayer().getY() + 1.5, context.getSource().getPlayer().getZ());
-				interaction.setXRot(context.getSource().getPlayer().getXRot());
-				interaction.setYRot(context.getSource().getPlayer().getYRot());
-				context.getSource().getWorld().addEntity(interaction);
-				context.getSource().getClient().setCameraEntity(interaction);
+				if (freecamEntity != null) {
+
+				}
+				freecamEntity = new Interaction(EntityType.INTERACTION, context.getSource().getPlayer().level());
+				freecamEntity.setPos(context.getSource().getPlayer().getX(), context.getSource().getPlayer().getY() + 1.5, context.getSource().getPlayer().getZ());
+				freecamEntity.setXRot(context.getSource().getPlayer().getXRot());
+				freecamEntity.setYRot(context.getSource().getPlayer().getYRot());
+				freecamEntity.setWidth(0.001f);
+				freecamEntity.setHeight(0.001f);
+
+				context.getSource().getWorld().addEntity(freecamEntity);
+				context.getSource().getClient().setCameraEntity(freecamEntity);
+				cacheSprint = sprint;
+				sprint = false;
 				freecam = !freecam;
 				if (!freecam) {
+					sprint = cacheSprint;
 					context.getSource().getClient().setCameraEntity(context.getSource().getPlayer());
-					interaction.discard();
+					freecamEntity.discard();
 				}
+				context.getSource().sendFeedback(Component.literal("Freecam is now " + freecam));
 				return 1;
 			}));
 		});
