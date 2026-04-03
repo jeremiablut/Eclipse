@@ -49,3 +49,25 @@ the **FREECAM** is still in development. (How it works below)
 **WARNING:** Client World will crash if you punch in air while in freecam
 
 **The GitHub repository will be on a newer status then Modrinth's page**
+
+## Basic UPDATE 1.0.0
+- [x] Auto Sprinting
+- [x] Fps counter
+- [x] Resetrenderengine
+
+## PVP UPDATE 1.0.1
+- [x] PVP Mode
+
+## Beta Freecam UPDATE 1.0.2
+- [x] Freecam Basics
+- [x] Freecam Up Move
+- [x] Freecam Down Move
+- [x] Resetrenderengine rewrote
+
+## Freecam Movement UPDATE 1.0.3
+- [x] Freecam Forward
+- [x] Freecam Backward
+
+## Final Freecam UPDATE 1.0.4
+- [ ] Freecam Left
+- [ ] Freecam Right
