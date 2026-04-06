@@ -43,22 +43,15 @@ The timer adds a stopwatch (*brillant*) in the actionbar.
 > - **/timer.start** starts timer
 > - **/timer.stop** stops timer
 > - **/timer.restart** restarts the timer
-> - **/timer.digital** sets the timermode to digital
-> - **/timer.analog** sets the timermode to analog
+> - **/timer.toggleMode** switches between analog and digital timer mode
 
 ### CONTROLS:
 #### > **Freecam:**
-> > W - Forward
->
-> > A - Left
->
-> > S - Backward
->
-> > D - Right
+> > WASD - Moving
 > 
 > > SPACE - Up
 >
-> > Shift - Faster
+> > Shift - Faster Movement
 
 **WARNING:** Client World will crash if you punch an entity while in freecam
 
