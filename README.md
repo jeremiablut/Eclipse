@@ -89,10 +89,11 @@ The timer adds a stopwatch (*brillant*) in the actionbar.
 - [x] Freecam Left
 - [x] Freecam Right
 
-**.  .  .**
+## Bug Fixer UPDATE 1.0.6
+- [x] Bug Fixes in if statement
+- [x] shorted code
 
-## Fullbright UPDATE x.x.x
-- [ ] Fullbright
+**.  .  .**
 
 ## Modmenu UPDATE x.x.x
 - [ ] Modmenu Configuration

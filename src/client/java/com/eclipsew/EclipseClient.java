@@ -8,6 +8,8 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallba
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Interaction;
 import net.minecraft.world.entity.player.Player;
@@ -83,10 +85,11 @@ public class EclipseClient implements ClientModInitializer {
 
 	}
 
-
 	@Override
 	public void onInitializeClient() {
+
 		ClientTickEvents.END_CLIENT_TICK.register((minecraft -> {
+
 			var activePlayer = minecraft.player;
 
 			Window window = Minecraft.getInstance().getWindow();
@@ -135,13 +138,7 @@ public class EclipseClient implements ClientModInitializer {
 			{
 				seconds = ticks / 20;
 
-				if (status == "started") ticks++;
-
-				else if (status == "restarted") {
-					ticks = 0;
-					minutes = 0;
-					hours = 0;
-				}
+				if ("started".equals(status)) ticks++;
 				genTimer();
 				Component component = Component.nullToEmpty(timer)
 						.copy()
@@ -184,6 +181,8 @@ public class EclipseClient implements ClientModInitializer {
 				return 1;
 			}));
 
+
+
 			dispatcher.register(ClientCommandManager.literal("freecam").executes(context -> {
 				if (!freecam) {
 					freecamEntity = new Interaction(EntityType.INTERACTION, context.getSource().getPlayer().level());
@@ -198,6 +197,7 @@ public class EclipseClient implements ClientModInitializer {
 					sprint = cacheSprint;
 					context.getSource().getClient().setCameraEntity(context.getSource().getPlayer());
 					freecamEntity.discard();
+					freecamEntity = null;
 				}
 				context.getSource().sendFeedback(Component.literal("Freecam is now " + freecam));
 				return 1;
@@ -213,6 +213,10 @@ public class EclipseClient implements ClientModInitializer {
 
 				dispatcher.register(ClientCommandManager.literal("timer.restart").executes(context -> {
 					status = "restarted";
+					ticks = 0;
+					seconds = 0;
+					minutes = 0;
+					hours = 0;
 					Component component = Component.nullToEmpty("Timer was Restarted");
 					context.getSource().getPlayer().displayClientMessage(component, false);
 					return 1;
@@ -232,18 +236,8 @@ public class EclipseClient implements ClientModInitializer {
 					return 1;
 				}));
 
-				dispatcher.register(ClientCommandManager.literal("timer.digital").executes(context -> {
-					digital = true;
-					Component component = Component.nullToEmpty("Timer is digital");
-					context.getSource().getPlayer().displayClientMessage(component, false);
-					return 1;
-				}));
-
-				dispatcher.register(ClientCommandManager.literal("timer.analog").executes(context -> {
-					digital = false;
-					Player player = context.getSource().getPlayer();
-					Component component = Component.nullToEmpty("Timer is analog");
-					context.getSource().getPlayer().displayClientMessage(component, false);
+				dispatcher.register(ClientCommandManager.literal("timer.toggle.mode").executes(context -> {
+					digital = !digital;
 					return 1;
 				}));
 			}
