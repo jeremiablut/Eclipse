@@ -1,0 +1,38 @@
+{
+	"schemaVersion": 1,
+	"id": "eclipse",
+	"version": "${version}",
+	"name": "Eclipse",
+	"description": "Eclipse is a mod",
+	"authors": [
+		"Some random dude"
+	],
+	"contact": {
+		"homepage": "https://ismycomputeronfire.com/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/eclipse/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.eclipse.Eclipse"
+		],
+		"client": [
+			"com.eclipse.client.EclipseClient"
+		]
+	},
+	"mixins": [
+		"eclipse.mixins.json",
+		{
+			"config": "eclipse.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.18.6",
+		"minecraft": "~26.1",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}
