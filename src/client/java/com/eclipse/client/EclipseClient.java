@@ -210,7 +210,6 @@ public class EclipseClient implements ClientModInitializer {
 					})
 			);
 
-			// Timer Commands
 			dispatcher.register(ClientCommands.literal("timer.start")
 					.executes(context -> {
 						status = "started";
