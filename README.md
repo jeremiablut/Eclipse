@@ -86,6 +86,13 @@ The timer adds a stopwatch (*brillant*) in the actionbar.
 - [x] Bug Fixes in if statement
 - [x] shorted code
 
+## Version UPDATE 1.0.7
+- [x] Code converted
+
+## Version UPDATE 1.0.7.1
+- [x] Freecam Fix
+- [x] Removed VSync in PVPMODE
+
 **.  .  .**
 
 ## Modmenu UPDATE x.x.x
