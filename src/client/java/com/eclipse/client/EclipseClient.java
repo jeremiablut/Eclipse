@@ -154,7 +154,6 @@ public class EclipseClient implements ClientModInitializer {
 		}));
 
 		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
-			// FPS Toggle Command
 			dispatcher.register(ClientCommands.literal("toggle.fps")
 					.executes(context -> {
 						fps = !fps;
@@ -163,7 +162,6 @@ public class EclipseClient implements ClientModInitializer {
 					})
 			);
 
-			// Sprint Toggle Command
 			dispatcher.register(ClientCommands.literal("toggle.sprint")
 					.executes(context -> {
 						sprint = !sprint;
@@ -172,7 +170,6 @@ public class EclipseClient implements ClientModInitializer {
 					})
 			);
 
-			// PVP Command
 			dispatcher.register(ClientCommands.literal("enable.pvp")
 					.executes(context -> {
 						setPvp();
@@ -181,7 +178,6 @@ public class EclipseClient implements ClientModInitializer {
 					})
 			);
 
-			// Resource Pack Reload
 			dispatcher.register(ClientCommands.literal("reload")
 					.executes(context -> {
 						context.getSource().getClient().reloadResourcePacks();
