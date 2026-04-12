@@ -144,12 +144,12 @@ public class EclipseClient implements ClientModInitializer {
 
 			while (ts.consumeClick()) {
 				config.sprint = !config.sprint;
-				minecraft.player.sendSystemMessage(Component.literal("Sprint is now on " + config.sprint));
+				activePlayer.sendSystemMessage(Component.literal("Sprint is now on " + config.sprint));
 			}
 
 			while (tf.consumeClick()) {
 				config.fps = !config.fps;
-				minecraft.player.sendSystemMessage(Component.literal("Fps is now on " + config.fps));
+				activePlayer.sendSystemMessage(Component.literal("Fps is now on " + config.fps));
 			}
 
 			while (freec.consumeClick()) {
@@ -161,8 +161,8 @@ public class EclipseClient implements ClientModInitializer {
 			if (config.sprint) activePlayer.setSprinting(true);
 
 			if (freecam) {
-				freecamEntity.setXRot(minecraft.player.getXRot());
-				freecamEntity.setYRot(minecraft.player.getYRot());
+				freecamEntity.setXRot(activePlayer.getXRot());
+				freecamEntity.setYRot(activePlayer.getYRot());
 
 				if (InputConstants.isKeyDown(window, GLFW.GLFW_KEY_SPACE)) {
 					freecamEntity.setPos(freecamEntity.getX(), freecamEntity.getY() + 1, freecamEntity.getZ());
@@ -200,7 +200,7 @@ public class EclipseClient implements ClientModInitializer {
 						.copy()
 						.withStyle(style -> style.withColor(config.timercolor)
 								.withShadowColor(0x000000));
-				if (config.shown) minecraft.player.sendOverlayMessage(component);
+				if (config.shown) activePlayer.sendOverlayMessage(component);
 				if (config.seconds >= 60) {
 					config.ticks = 0;
 					if (config.minutes < 60) config.minutes++;
