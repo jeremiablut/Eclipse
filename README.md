@@ -89,6 +89,11 @@ The timer adds a stopwatch (*brillant*) in the actionbar.
 ## Controls UPDATE 1.0.8
 - [x] Control rebinding
 
+## Save Data UPDATE 1.0.9
+- [x] implemented storage
+- [x] Freecamspeed control
+- [x] color control
+
 **.  .  .**
 
 ## Modmenu UPDATE x.x.x
