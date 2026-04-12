@@ -7,6 +7,8 @@ This _Clientside_ Mod is meant as a collection of client-side utilities. This mo
 >- **/enable.pvp** enables pvp mode, more info below (defaults to true)
 >- **/freecam** toggles freecam, more info below (defaults to false)
 >- **/timer + expansion** more Info below
+>- **/freecamspeed** + float
+>- **/fpscolor** + int
 
 ### PVP MODE
 the **PVP MODE** sets different Minecraft options to the best values for pvp.
@@ -42,6 +44,7 @@ The timer adds a stopwatch (*brillant*) in the actionbar.
 > - **/timer.stop** stops timer
 > - **/timer.restart** restarts the timer
 > - **/timer.toggleMode** switches between analog and digital timer mode
+> - **/timercolor** sets the color
 
 **WARNING:** Client World will crash if you punch an entity while in freecam
 

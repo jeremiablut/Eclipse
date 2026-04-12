@@ -1,5 +1,7 @@
 package com.eclipse.client;
 
+import com.eclipse.client.config.ConfigManager;
+import com.eclipse.client.config.ModConfig;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.brigadier.arguments.FloatArgumentType;
@@ -19,14 +21,11 @@ import net.minecraft.world.phys.Vec3;
 import org.lwjgl.glfw.GLFW;
 
 public class EclipseClient implements ClientModInitializer {
+	private boolean freecam = false;
+	public Interaction freecamEntity;
 	KeyMapping.Category CATEGORY = KeyMapping.Category.register(
 			Identifier.fromNamespaceAndPath("eclipse", "controlys")
 	);
-	private boolean fps = false, sprint = true, freecam = false, cacheSprint, shown = false, digital = true;
-	private Interaction freecamEntity;
-	private float distance = 1f;
-	private String status, hoursToMinutesDigital, minutesToSecondsDigital, hoursToMinutesAnalog, minutesToSecondsAnalog, timer;
-	private int ticks = 0, seconds, minutes = 0, hours = 0;
 
 	private void setPvp() {
 		Minecraft.getInstance().options.bobView().set(false);
@@ -38,18 +37,18 @@ public class EclipseClient implements ClientModInitializer {
 		Minecraft.getInstance().options.save();
 	}
 
-	private void toggleFreecam() {
+	private void toggleFreecam(ModConfig config) {
 		if (!freecam) {
 			freecamEntity = new Interaction(EntityType.INTERACTION, Minecraft.getInstance().player.level());
 			freecamEntity.setPos(Minecraft.getInstance().player.getX(), Minecraft.getInstance().player.getY() + 2, Minecraft.getInstance().player.getZ());
 			Minecraft.getInstance().level.addEntity(freecamEntity);
 			Minecraft.getInstance().setCameraEntity(freecamEntity);
-			cacheSprint = sprint;
-			sprint = false;
+			config.cacheSprint = config.sprint;
+			config.sprint = false;
 		}
 		freecam = !freecam;
 		if (!freecam) {
-			sprint = cacheSprint;
+			config.sprint = config.cacheSprint;
 			Minecraft.getInstance().setCameraEntity(Minecraft.getInstance().player);
 			freecamEntity.discard();
 			freecamEntity = null;
@@ -57,51 +56,51 @@ public class EclipseClient implements ClientModInitializer {
 		Minecraft.getInstance().player.sendSystemMessage(Component.literal("Freecam is now " + freecam));
 	}
 
-	public void genTimer() {
-		if (minutes < 10) {
-			hoursToMinutesDigital = ":0";
-			hoursToMinutesAnalog = "h 0";
+	public void genTimer(ModConfig config) {
+		if (config.minutes < 10) {
+			config.hoursToMinutesDigital = ":0";
+			config.hoursToMinutesAnalog = "h 0";
 		}
 
 		else {
-			hoursToMinutesDigital = ":";
-			hoursToMinutesAnalog = "h ";
+			config.hoursToMinutesDigital = ":";
+			config.hoursToMinutesAnalog = "h ";
 		}
 
-		if (seconds < 10) {
-			minutesToSecondsDigital = ":0";
-			minutesToSecondsAnalog = "min 0";
+		if (config.seconds < 10) {
+			config.minutesToSecondsDigital = ":0";
+			config.minutesToSecondsAnalog = "min 0";
 		}
 
 		else {
-			minutesToSecondsDigital = ":";
-			minutesToSecondsAnalog = "min ";
+			config.minutesToSecondsDigital = ":";
+			config.minutesToSecondsAnalog = "min ";
 		}
 
-		if (digital) {
-			if (hours == 0) {
-				if (minutes == 0) {
-					timer = seconds + "";
+		if (config.digital) {
+			if (config.hours == 0) {
+				if (config.minutes == 0) {
+					config.timer = config.seconds + "";
 				}
 				else {
-					timer = minutes + minutesToSecondsDigital + seconds;
+					config.timer = config.minutes + config.minutesToSecondsDigital + config.seconds;
 				}
 			}
 			else {
-				timer = hours + hoursToMinutesDigital + minutes + minutesToSecondsDigital + seconds;
+				config.timer = config.hours + config.hoursToMinutesDigital + config.minutes + config.minutesToSecondsDigital + config.seconds;
 			}
 		}
 		else {
-			if (hours == 0) {
-				if (minutes == 0) {
-					timer = seconds + "s";
+			if (config.hours == 0) {
+				if (config.minutes == 0) {
+					config.timer = config.seconds + "s";
 				}
 				else {
-					timer = minutes + minutesToSecondsAnalog + seconds + "s";
+					config.timer = config.minutes + config.minutesToSecondsAnalog + config.seconds + "s";
 				}
 			}
 			else {
-				timer = hours + hoursToMinutesAnalog + minutes + minutesToSecondsAnalog + seconds + "s";
+				config.timer = config.hours + config.hoursToMinutesAnalog + config.minutes + config.minutesToSecondsAnalog + config.seconds + "s";
 			}
 
 		}
@@ -110,6 +109,8 @@ public class EclipseClient implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
+		ConfigManager.load();
+		ModConfig config = ConfigManager.getConfig();
 		KeyMapping ts = KeyMappingHelper.registerKeyMapping(
 				new KeyMapping(
 						"Toggle Sprint",
@@ -142,22 +143,22 @@ public class EclipseClient implements ClientModInitializer {
 			if (activePlayer == null) return;
 
 			while (ts.consumeClick()) {
-				sprint = !sprint;
-				minecraft.player.sendSystemMessage(Component.literal("Sprint is now on " + sprint));
+				config.sprint = !config.sprint;
+				minecraft.player.sendSystemMessage(Component.literal("Sprint is now on " + config.sprint));
 			}
 
 			while (tf.consumeClick()) {
-				fps = !fps;
-				minecraft.player.sendSystemMessage(Component.literal("Fps is now on " + fps));
+				config.fps = !config.fps;
+				minecraft.player.sendSystemMessage(Component.literal("Fps is now on " + config.fps));
 			}
 
 			while (freec.consumeClick()) {
-				toggleFreecam();
+				toggleFreecam(config);
 			}
 
-			if (fps) activePlayer.sendOverlayMessage(Component.literal(String.valueOf(minecraft.getFps())).withColor(0x0));
+			if (config.fps) activePlayer.sendOverlayMessage(Component.literal(String.valueOf(minecraft.getFps())).withColor(config.fpscolor));
 
-			if (sprint) activePlayer.setSprinting(true);
+			if (config.sprint) activePlayer.setSprinting(true);
 
 			if (freecam) {
 				freecamEntity.setXRot(minecraft.player.getXRot());
@@ -169,43 +170,43 @@ public class EclipseClient implements ClientModInitializer {
 
 				if (InputConstants.isKeyDown(window, GLFW.GLFW_KEY_W)) {
 					Vec3 look = freecamEntity.getLookAngle();
-					freecamEntity.setPos(freecamEntity.getX() + (look.x * distance), freecamEntity.getY() + (look.y * distance), freecamEntity.getZ() + (look.z * distance));
+					freecamEntity.setPos(freecamEntity.getX() + (look.x * config.distance), freecamEntity.getY() + (look.y * config.distance), freecamEntity.getZ() + (look.z * config.distance));
 				}
 
 				if (InputConstants.isKeyDown(window, GLFW.GLFW_KEY_S)) {
 					Vec3 look = freecamEntity.getLookAngle();
-					freecamEntity.setPos(freecamEntity.getX() + (look.x * -distance), freecamEntity.getY() + (look.y * -distance), freecamEntity.getZ() + (look.z * -distance));
+					freecamEntity.setPos(freecamEntity.getX() + (look.x * -config.distance), freecamEntity.getY() + (look.y * -config.distance), freecamEntity.getZ() + (look.z * -config.distance));
 				}
 
 				if (InputConstants.isKeyDown(window, GLFW.GLFW_KEY_A)) {
 					Vec3 look = freecamEntity.getLookAngle();
 					Vec3 right = new Vec3(-look.z, 0, look.x).normalize();
-					freecamEntity.setPos(freecamEntity.getX() - (right.x * distance), freecamEntity.getY(), freecamEntity.getZ() - (right.z * distance));
+					freecamEntity.setPos(freecamEntity.getX() - (right.x * config.distance), freecamEntity.getY(), freecamEntity.getZ() - (right.z * config.distance));
 				}
 
 				if (InputConstants.isKeyDown(window, GLFW.GLFW_KEY_D)) {
 					Vec3 look = freecamEntity.getLookAngle();
 					Vec3 right = new Vec3(-look.z, 0, look.x).normalize();
-					freecamEntity.setPos(freecamEntity.getX() + (right.x * distance), freecamEntity.getY(), freecamEntity.getZ() + (right.z * distance));
+					freecamEntity.setPos(freecamEntity.getX() + (right.x * config.distance), freecamEntity.getY(), freecamEntity.getZ() + (right.z * config.distance));
 				}
 			}
 
 			{
-				seconds = ticks / 20;
+				config.seconds = config.ticks / 20;
 
-				if ("started".equals(status)) ticks++;
-				genTimer();
-				Component component = Component.nullToEmpty(timer)
+				if ("started".equals(config.status)) config.ticks++;
+				genTimer(config);
+				Component component = Component.nullToEmpty(config.timer)
 						.copy()
-						.withStyle(style -> style.withColor(0x0000AA)
+						.withStyle(style -> style.withColor(config.timercolor)
 								.withShadowColor(0x000000));
-				if (shown) minecraft.player.sendOverlayMessage(component);
-				if (seconds >= 60) {
-					ticks = 0;
-					if (minutes < 60) minutes++;
+				if (config.shown) minecraft.player.sendOverlayMessage(component);
+				if (config.seconds >= 60) {
+					config.ticks = 0;
+					if (config.minutes < 60) config.minutes++;
 					else {
-						minutes = 0;
-						hours++;
+						config.minutes = 0;
+						config.hours++;
 					}
 				}
 			}
@@ -214,16 +215,16 @@ public class EclipseClient implements ClientModInitializer {
 		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
 			dispatcher.register(ClientCommands.literal("toggle.fps")
 					.executes(context -> {
-						fps = !fps;
-						context.getSource().sendFeedback(Component.literal("FPS toggled to " + fps));
+						config.fps = !config.fps;
+						context.getSource().sendFeedback(Component.literal("FPS toggled to " + config.fps));
 						return 1;
 					})
 			);
 
 			dispatcher.register(ClientCommands.literal("toggle.sprint")
 					.executes(context -> {
-						sprint = !sprint;
-						context.getSource().sendFeedback(Component.literal("Sprint toggled to " + sprint));
+						config.sprint = !config.sprint;
+						context.getSource().sendFeedback(Component.literal("Sprint toggled to " + config.sprint));
 						return 1;
 					})
 			);
@@ -246,14 +247,14 @@ public class EclipseClient implements ClientModInitializer {
 
 			dispatcher.register(ClientCommands.literal("freecam")
 					.executes(context -> {
-						toggleFreecam();
+						toggleFreecam(config);
 						return 1;
 					})
 			);
 
 			dispatcher.register(ClientCommands.literal("timer.start")
 					.executes(context -> {
-						status = "started";
+						config.status = "started";
 						context.getSource().getPlayer().sendOverlayMessage(Component.literal("Timer Started"));
 						return 1;
 					})
@@ -261,11 +262,11 @@ public class EclipseClient implements ClientModInitializer {
 
 			dispatcher.register(ClientCommands.literal("timer.restart")
 					.executes(context -> {
-						status = "restarted";
-						ticks = 0;
-						seconds = 0;
-						minutes = 0;
-						hours = 0;
+						config.status = "restarted";
+						config.ticks = 0;
+						config.seconds = 0;
+						config.minutes = 0;
+						config.hours = 0;
 						context.getSource().getPlayer().sendOverlayMessage(Component.literal("Timer was Restarted"));
 						return 1;
 					})
@@ -273,7 +274,7 @@ public class EclipseClient implements ClientModInitializer {
 
 			dispatcher.register(ClientCommands.literal("timer.stop")
 					.executes(context -> {
-						status = "stopped";
+						config.status = "stopped";
 						context.getSource().getPlayer().sendOverlayMessage(Component.literal("Timer was stopped"));
 						return 1;
 					})
@@ -281,7 +282,7 @@ public class EclipseClient implements ClientModInitializer {
 
 			dispatcher.register(ClientCommands.literal("timer.toggle")
 					.executes(context -> {
-						shown = !shown;
+						config.shown = !config.shown;
 						context.getSource().getPlayer().sendOverlayMessage(Component.literal("Timer was toggled"));
 						return 1;
 					})
@@ -289,10 +290,37 @@ public class EclipseClient implements ClientModInitializer {
 
 			dispatcher.register(ClientCommands.literal("timer.toggle.mode")
 					.executes(context -> {
-						digital = !digital;
+						config.digital = !config.digital;
 						return 1;
 					})
 			);
+
+			dispatcher.register(ClientCommands.literal("fpscolor")
+					.then(ClientCommands.argument("4095", IntegerArgumentType.integer())
+						.executes(context -> {
+						config.fpscolor = IntegerArgumentType.getInteger(context, "4095");
+						ConfigManager.save();
+						return 1;
+					})
+			));
+
+			dispatcher.register(ClientCommands.literal("freecamspeed")
+					.then(ClientCommands.argument("1", FloatArgumentType.floatArg())
+							.executes(context -> {
+								config.distance = FloatArgumentType.getFloat(context, "1");
+								ConfigManager.save();
+								return 1;
+							})
+					));
+
+			dispatcher.register(ClientCommands.literal("timercolor")
+					.then(ClientCommands.argument("170", IntegerArgumentType.integer())
+							.executes(context -> {
+								config.timercolor = IntegerArgumentType.getInteger(context, "170");
+								ConfigManager.save();
+								return 1;
+							})
+					));
 		});
 	}
 }
