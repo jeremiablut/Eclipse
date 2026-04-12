@@ -1,4 +1,4 @@
-package com.eclipse.client.mixin;
+package com.eclipse.client.mixin.com.eclipse.mixin;
 
 import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Mixin;

@@ -6,15 +6,21 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Interaction;
 import net.minecraft.world.phys.Vec3;
 import org.lwjgl.glfw.GLFW;
 
+
 public class EclipseClient implements ClientModInitializer {
+	KeyMapping.Category CATEGORY = KeyMapping.Category.register(
+			Identifier.fromNamespaceAndPath("eclipse", "controlys")
+	);
 	private boolean fps = false, sprint = true, freecam = false, cacheSprint, shown = false, digital = true;
 	private Interaction freecamEntity;
 	private float distance = 1f;
@@ -29,6 +35,25 @@ public class EclipseClient implements ClientModInitializer {
 		Minecraft.getInstance().options.fovEffectScale().set(0d);
 		Minecraft.getInstance().options.entityShadows().set(false);
 		Minecraft.getInstance().options.save();
+	}
+
+	private void toggleFreecam() {
+		if (!freecam) {
+			freecamEntity = new Interaction(EntityType.INTERACTION, Minecraft.getInstance().player.level());
+			freecamEntity.setPos(Minecraft.getInstance().player.getX(), Minecraft.getInstance().player.getY() + 2, Minecraft.getInstance().player.getZ());
+			Minecraft.getInstance().level.addEntity(freecamEntity);
+			Minecraft.getInstance().setCameraEntity(freecamEntity);
+			cacheSprint = sprint;
+			sprint = false;
+		}
+		freecam = !freecam;
+		if (!freecam) {
+			sprint = cacheSprint;
+			Minecraft.getInstance().setCameraEntity(Minecraft.getInstance().player);
+			freecamEntity.discard();
+			freecamEntity = null;
+		}
+		Minecraft.getInstance().player.sendSystemMessage(Component.literal("Freecam is now " + freecam));
 	}
 
 	public void genTimer() {
@@ -84,14 +109,50 @@ public class EclipseClient implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
+		KeyMapping ts = KeyMappingHelper.registerKeyMapping(
+				new KeyMapping(
+						"Toggle Sprint",
+						InputConstants.Type.KEYSYM,
+						GLFW.GLFW_KEY_LEFT_CONTROL,
+						CATEGORY
+				));
+
+		KeyMapping tf = KeyMappingHelper.registerKeyMapping(
+				new KeyMapping(
+						"Toggle Fps",
+						InputConstants.Type.KEYSYM,
+						GLFW.GLFW_KEY_F6,
+						CATEGORY
+				));
+
+		KeyMapping freec = KeyMappingHelper.registerKeyMapping(
+				new KeyMapping(
+						"Toggle Freecam",
+						InputConstants.Type.KEYSYM,
+						GLFW.GLFW_KEY_F4,
+						CATEGORY
+				));
 
 		ClientTickEvents.END_CLIENT_TICK.register((minecraft -> {
-
 			var activePlayer = minecraft.player;
 
 			Window window = Minecraft.getInstance().getWindow();
 
 			if (activePlayer == null) return;
+
+			while (ts.consumeClick()) {
+				sprint = !sprint;
+				minecraft.player.sendSystemMessage(Component.literal("Sprint is now on " + sprint));
+			}
+
+			while (tf.consumeClick()) {
+				fps = !fps;
+				minecraft.player.sendSystemMessage(Component.literal("Fps is now on " + fps));
+			}
+
+			while (freec.consumeClick()) {
+				toggleFreecam();
+			}
 
 			if (fps) activePlayer.sendOverlayMessage(Component.literal(String.valueOf(minecraft.getFps())).withColor(0x00FFFF));
 
@@ -186,26 +247,9 @@ public class EclipseClient implements ClientModInitializer {
 					})
 			);
 
-			// Freecam Command
 			dispatcher.register(ClientCommands.literal("freecam")
 					.executes(context -> {
-						LocalPlayer player = context.getSource().getPlayer();
-						if (!freecam) {
-							freecamEntity = new Interaction(EntityType.INTERACTION, player.level());
-							freecamEntity.setPos(player.getX(), player.getY() + 2, player.getZ());
-							context.getSource().getLevel().addEntity(freecamEntity);
-							context.getSource().getClient().setCameraEntity(freecamEntity);
-							cacheSprint = sprint;
-							sprint = false;
-						}
-						freecam = !freecam;
-						if (!freecam) {
-							sprint = cacheSprint;
-							context.getSource().getClient().setCameraEntity(player);
-							freecamEntity.discard();
-							freecamEntity = null;
-						}
-						context.getSource().sendFeedback(Component.literal("Freecam is now " + freecam));
+						toggleFreecam();
 						return 1;
 					})
 			);
@@ -253,6 +297,5 @@ public class EclipseClient implements ClientModInitializer {
 					})
 			);
 		});
-
 	}
 }

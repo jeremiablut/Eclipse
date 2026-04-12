@@ -19,8 +19,7 @@ loom {
 
 	mods {
 		"eclipse" {
-			sourceSet sourceSets.main
-			sourceSet sourceSets.client
+
 		}
 	}
 
@@ -31,10 +30,8 @@ dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	
 	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
-
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
-	
 }
 
 processResources {

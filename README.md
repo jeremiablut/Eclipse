@@ -15,7 +15,6 @@ Minecraft.getInstance().options.bobView().set(false);
 Minecraft.getInstance().options.vignette().set(false);
 Minecraft.getInstance().options.damageTiltStrength().set(0d);
 Minecraft.getInstance().options.narratorHotkey().set(false);
-Minecraft.getInstance().options.enableVsync().set(false);
 Minecraft.getInstance().options.fovEffectScale().set(0d);
 Minecraft.getInstance().options.entityShadows().set(false);
 Minecraft.getInstance().options.save();
@@ -26,7 +25,6 @@ for those who don't know what that means, here is a list:
 > - no vignette (no black borders)
 > - no damagetilt (when you get damage your camera is not shaking)
 > - no narratorHotkey (disables the narrator hot key)
-> - no Vsync
 > - no fov effect (this makes that if you accelerate your fov is not changing)
 > - no entity shadows (disables the entity shadows, what can cause performance impacts)
 
@@ -44,14 +42,6 @@ The timer adds a stopwatch (*brillant*) in the actionbar.
 > - **/timer.stop** stops timer
 > - **/timer.restart** restarts the timer
 > - **/timer.toggleMode** switches between analog and digital timer mode
-
-### CONTROLS:
-#### > **Freecam:**
-> > WASD - Moving
-> 
-> > SPACE - Up
->
-> > Shift - Faster Movement
 
 **WARNING:** Client World will crash if you punch an entity while in freecam
 
@@ -92,6 +82,9 @@ The timer adds a stopwatch (*brillant*) in the actionbar.
 ## Version UPDATE 1.0.7.1
 - [x] Freecam Fix
 - [x] Removed VSync in PVPMODE
+
+## Controls UPDATE 1.0.8
+- [x] Control rebinding
 
 **.  .  .**
 
