@@ -2,6 +2,8 @@ package com.eclipse.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Window;
+import com.mojang.brigadier.arguments.FloatArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
@@ -15,7 +17,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Interaction;
 import net.minecraft.world.phys.Vec3;
 import org.lwjgl.glfw.GLFW;
-
 
 public class EclipseClient implements ClientModInitializer {
 	KeyMapping.Category CATEGORY = KeyMapping.Category.register(
@@ -154,16 +155,13 @@ public class EclipseClient implements ClientModInitializer {
 				toggleFreecam();
 			}
 
-			if (fps) activePlayer.sendOverlayMessage(Component.literal(String.valueOf(minecraft.getFps())).withColor(0x00FFFF));
+			if (fps) activePlayer.sendOverlayMessage(Component.literal(String.valueOf(minecraft.getFps())).withColor(0x0));
 
 			if (sprint) activePlayer.setSprinting(true);
 
 			if (freecam) {
 				freecamEntity.setXRot(minecraft.player.getXRot());
 				freecamEntity.setYRot(minecraft.player.getYRot());
-
-				if (activePlayer.isShiftKeyDown()) distance = 2;
-				else distance = 1;
 
 				if (InputConstants.isKeyDown(window, GLFW.GLFW_KEY_SPACE)) {
 					freecamEntity.setPos(freecamEntity.getX(), freecamEntity.getY() + 1, freecamEntity.getZ());
@@ -184,7 +182,6 @@ public class EclipseClient implements ClientModInitializer {
 					Vec3 right = new Vec3(-look.z, 0, look.x).normalize();
 					freecamEntity.setPos(freecamEntity.getX() - (right.x * distance), freecamEntity.getY(), freecamEntity.getZ() - (right.z * distance));
 				}
-
 
 				if (InputConstants.isKeyDown(window, GLFW.GLFW_KEY_D)) {
 					Vec3 look = freecamEntity.getLookAngle();
