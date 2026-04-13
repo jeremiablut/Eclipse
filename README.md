@@ -3,7 +3,7 @@ This _Clientside_ Mod is meant as a collection of client-side utilities. This mo
 ## Features:
 >- **/toggle.fps** shows fps count in actionbar (defaults to false)
 >- **/toggle.sprint** toggles sprinting (defaults to true)
->- **/reload** reloads the Recourcepacks
+>- **/reload** reloads the recourcepacks
 >- **/enable.pvp** enables pvp mode, more info below (defaults to true)
 >- **/freecam** toggles freecam, more info below (defaults to false)
 >- **/timer + expansion** more Info below
@@ -11,21 +11,11 @@ This _Clientside_ Mod is meant as a collection of client-side utilities. This mo
 >- **/fpscolor** + int
 
 ### PVP MODE
-the **PVP MODE** sets different Minecraft options to the best values for pvp.
-```
-Minecraft.getInstance().options.bobView().set(false);
-Minecraft.getInstance().options.vignette().set(false);
-Minecraft.getInstance().options.damageTiltStrength().set(0d);
-Minecraft.getInstance().options.narratorHotkey().set(false);
-Minecraft.getInstance().options.fovEffectScale().set(0d);
-Minecraft.getInstance().options.entityShadows().set(false);
-Minecraft.getInstance().options.save();
-```
+the **PVP MODE** sets *various* Minecraft options to the best values for pvp.
 
-for those who don't know what that means, here is a list:
-> - no bob (no camerashake while walking)
+> - no bob (no camera shake while walking)
 > - no vignette (no black borders)
-> - no damagetilt (when you get damage your camera is not shaking)
+> - no damage tilt (when you get damage your camera is not shaking)
 > - no narratorHotkey (disables the narrator hot key)
 > - no fov effect (this makes that if you accelerate your fov is not changing)
 > - no entity shadows (disables the entity shadows, what can cause performance impacts)
@@ -45,8 +35,6 @@ The timer adds a stopwatch (*brillant*) in the actionbar.
 > - **/timer.restart** restarts the timer
 > - **/timer.toggleMode** switches between analog and digital timer mode
 > - **/timercolor** sets the color
-
-**WARNING:** Client World will crash if you punch an entity while in freecam
 
 ## Basic UPDATE 1.0.0
 - [x] Auto Sprinting
@@ -93,6 +81,9 @@ The timer adds a stopwatch (*brillant*) in the actionbar.
 - [x] implemented storage
 - [x] Freecamspeed control
 - [x] color control
+
+## Unhack UPDATE 1.1.0
+- [x] Added unabletohack function
 
 **.  .  .**
 
