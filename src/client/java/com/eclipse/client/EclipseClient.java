@@ -6,7 +6,6 @@ import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
-import com.mojang.brigadier.arguments.StringArgumentType;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
@@ -21,9 +20,11 @@ import net.minecraft.world.entity.Interaction;
 import net.minecraft.world.phys.Vec3;
 import org.lwjgl.glfw.GLFW;
 
+import java.awt.*;
+
 public class EclipseClient implements ClientModInitializer {
 	private boolean freecam = false;
-	public Interaction freecamEntity, uncheater;
+	private Interaction freecamEntity, uncheater;
 	KeyMapping.Category CATEGORY = KeyMapping.Category.register(
 			Identifier.fromNamespaceAndPath("eclipse", "controlys")
 	);
@@ -148,6 +149,8 @@ public class EclipseClient implements ClientModInitializer {
 			var activePlayer = minecraft.player;
 
 			Window window = Minecraft.getInstance().getWindow();
+
+			Minecraft.getInstance().getWindow().setTitle("|->ECLIPSE<-|");
 
 			if (activePlayer == null) return;
 
@@ -329,16 +332,6 @@ public class EclipseClient implements ClientModInitializer {
 							.executes(context -> {
 								config.timercolor = IntegerArgumentType.getInteger(context, "170");
 								ConfigManager.save();
-								return 1;
-							})
-					));
-
-			dispatcher.register(ClientCommands.literal("nicker")
-					.then(ClientCommands.argument("new name", StringArgumentType.string())
-							.executes(context -> {
-								config.name = StringArgumentType.getString(context, "new name");
-								ConfigManager.save();
-								context.getSource().getPlayer().setCustomName(Component.literal(config.name));
 								return 1;
 							})
 					));

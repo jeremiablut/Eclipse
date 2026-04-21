@@ -14,7 +14,7 @@ public final class ConfigManager {
 
     private static final Path CONFIG_PATH = FabricLoader.getInstance()
             .getConfigDir()
-            .resolve("mymod.json");
+            .resolve("eclipse.json");
 
     private static ModConfig config = new ModConfig();
 

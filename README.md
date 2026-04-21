@@ -85,6 +85,9 @@ The timer adds a stopwatch (*brillant*) in the actionbar.
 ## Unhack UPDATE 1.1.0
 - [x] Added unabletohack function
 
+## Rename UPDATE 1.1.1
+- [x] Renamed config file
+
 **.  .  .**
 
 ## Modmenu UPDATE x.x.x
