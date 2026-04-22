@@ -88,6 +88,9 @@ The timer adds a stopwatch (*brillant*) in the actionbar.
 ## Rename UPDATE 1.1.1
 - [x] Renamed config file
 
+## Rename UPDATE 1.1.2
+- [x] Brought all new features in 1.21.11
+
 **.  .  .**
 
 ## Modmenu UPDATE x.x.x
