@@ -1,5 +1,6 @@
 package com.eclipse.client.ConfigScreen.FPSConfig;
 
+import com.eclipse.client.ConfigScreen.CustomScreen;
 import com.eclipse.client.EclipseClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
@@ -22,11 +23,12 @@ public class FpsConfig extends Screen {
                     EclipseClient.toggleFPS();
                 }).bounds(x, 40, buttonWidth, buttonHeight).build()
         );
+    }
 
-        this.addRenderableWidget(
-                Button.builder(Component.literal("Move FPS"), (btn) -> {
-                    Minecraft.getInstance().setScreen(new DragFPS(Component.empty()));
-                }).bounds(x, 80, buttonWidth, buttonHeight).build()
+    @Override
+    public void onClose() {
+        minecraft.setScreen(
+                new CustomScreen(Component.empty())
         );
     }
 }

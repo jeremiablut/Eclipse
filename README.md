@@ -7,6 +7,7 @@ This _Clientside_ Mod is meant as a collection of client-side utilities. This mo
 >- **/freecam** toggles freecam, more info below (defaults to false)
 >- **/timer + expansion** more Info below
 >- **/freecamspeed** + float
+>- **/toggle.autosprint.visual** toggles the DISPLAY of autosprint
 >- Config GUI open via **K**
 
 ### PVP MODE
@@ -107,6 +108,20 @@ The timer adds a stopwatch (*brillant*) in the actionbar.
 - [x] better readable code
 - [x] better autosprint
 - [x] better freecam speed control
+
+## MOVE UPDATE 1.1.4
+- [x] No Blur in move mode
+- [x] made only 1 move mode
+- [x] added grid to moving
+- [x] removed losing Focus while dragging
+- [x] added autosprint to HUD
+
+## OLDER MOVE UPDATE 1.1.4
+- [x] No Blur in move mode
+- [x] made only 1 move mode
+- [x] added grid to moving
+- [x] removed losing Focus while dragging
+- [x] added autosprint to HUD
 
 
 

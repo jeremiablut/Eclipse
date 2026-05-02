@@ -1,5 +1,6 @@
 package com.eclipse.client.ConfigScreen.TimerConfig;
 
+import com.eclipse.client.ConfigScreen.CustomScreen;
 import com.eclipse.client.EclipseClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
@@ -24,15 +25,9 @@ public class TimerConfig extends Screen {
         );
 
         this.addRenderableWidget(
-                Button.builder(Component.literal("Move Timer"), (btn) -> {
-                    Minecraft.getInstance().setScreen(new DragTimer(Component.empty()));
-                }).bounds(x, 80, buttonWidth, buttonHeight).build()
-        );
-
-        this.addRenderableWidget(
                 Button.builder(Component.literal("Start Timer"), (btn) -> {
                     EclipseClient.controlTimer("started");
-                }).bounds(x, 120, buttonWidth, buttonHeight).build()
+                }).bounds(x, 80, buttonWidth, buttonHeight).build()
         );
 
         this.addRenderableWidget(
@@ -44,7 +39,14 @@ public class TimerConfig extends Screen {
         this.addRenderableWidget(
                 Button.builder(Component.literal("Stop Timer"), (btn) -> {
                     EclipseClient.controlTimer("stopped");
-                }).bounds(x, 200, buttonWidth, buttonHeight).build()
+                }).bounds(x, 120, buttonWidth, buttonHeight).build()
+        );
+    }
+
+    @Override
+    public void onClose() {
+        minecraft.setScreen(
+                new CustomScreen(Component.empty())
         );
     }
 }

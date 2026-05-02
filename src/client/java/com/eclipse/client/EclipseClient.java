@@ -1,10 +1,7 @@
 package com.eclipse.client;
 
 import com.eclipse.client.ConfigScreen.CustomScreen;
-import com.eclipse.client.ConfigScreen.FPSConfig.DragFPS;
-import com.eclipse.client.ConfigScreen.FPSConfig.FpsConfig;
-import com.eclipse.client.ConfigScreen.TimerConfig.DragTimer;
-import com.eclipse.client.ConfigScreen.TimerConfig.TimerConfig;
+import com.eclipse.client.ConfigScreen.Drager;
 import com.eclipse.client.config.ConfigManager;
 import com.eclipse.client.config.ModConfig;
 import com.mojang.blaze3d.platform.InputConstants;
@@ -34,6 +31,8 @@ public class EclipseClient implements ClientModInitializer {
 	private static ModConfig config;
 	private static Interaction freecamEntity;
     private static Interaction uncheater;
+	private static String fps;
+	private static int selected;
 	private final KeyMapping.Category CATEGORY
 			= KeyMapping.Category.register(
 			Identifier.fromNamespaceAndPath("eclipse", "controlys")
@@ -155,6 +154,27 @@ public class EclipseClient implements ClientModInitializer {
 		);
 	}
 
+	// TIMER POS RESET
+	public static void timerReset() {
+		config.timerX = 10;
+		config.timerY = 20;
+		ConfigManager.save();
+	}
+
+	// SPRINT POS RESET
+	public static void sprintReset() {
+		config.sprintX = 10;
+		config.sprintY = 30;
+		ConfigManager.save();
+	}
+
+	// FPS POS RESET
+	public static void fpsReset() {
+		config.fpsX = 10;
+		config.fpsY = 10;
+		ConfigManager.save();
+	}
+
 	@Override
 	public void onInitializeClient() {
 		// CONFIG INITIALIZER
@@ -220,6 +240,7 @@ public class EclipseClient implements ClientModInitializer {
 			while (ts.consumeClick() && config.autoSprint) {
 				config.sprint = !config.sprint;
 				ConfigManager.save();
+				if (config.sprintVisual) return;
 				minecraft.getToastManager().addToast(
 						SystemToast.multiline(minecraft, SystemToast.SystemToastId.NARRATOR_TOGGLE, Component.nullToEmpty("Sprint"), Component.nullToEmpty("is now " + config.sprint))
 				);
@@ -245,44 +266,90 @@ public class EclipseClient implements ClientModInitializer {
 			// TOGGLE SPRINT
 			if (config.sprint && !activePlayer.isSprinting()  && config.autoSprint) activePlayer.setSprinting(true);
 
-			// DRAGMODE FPS
-			if (minecraft.screen instanceof DragFPS && InputConstants.isKeyDown(window, GLFW.GLFW_KEY_SPACE)) {
-				double mouseX = minecraft.mouseHandler.xpos()
-						* minecraft.getWindow().getGuiScaledWidth()
-						/ minecraft.getWindow().getScreenWidth();
-
-				double mouseY = minecraft.mouseHandler.ypos()
-						* minecraft.getWindow().getGuiScaledHeight()
-						/ minecraft.getWindow().getScreenHeight();
-
-				config.fpsX = (int) mouseX;
-				config.fpsY = (int) mouseY;
-				ConfigManager.save();
-
-				minecraft.setScreen(
-						new FpsConfig(Component.empty())
-				);
-
-
+			// FPS SETTING
+			if (config.fps) {
+				fps = "FPS: " + Minecraft.getInstance().getFps();
 			}
 
-			// DRAGMODE TIMER
-			if (minecraft.screen instanceof DragTimer && InputConstants.isKeyDown(window, GLFW.GLFW_KEY_SPACE)) {
-				double mouseX = minecraft.mouseHandler.xpos()
-						* minecraft.getWindow().getGuiScaledWidth()
-						/ minecraft.getWindow().getScreenWidth();
+			// DRAGER
+			if (minecraft.screen instanceof Drager) {
+				if (GLFW.glfwGetMouseButton(window.handle(), 0) == GLFW.GLFW_PRESS) {
+					// FPS DRAGGER
+					double mouseX = minecraft.mouseHandler.xpos()
+							* minecraft.getWindow().getGuiScaledWidth()
+							/ minecraft.getWindow().getScreenWidth();
 
-				double mouseY = minecraft.mouseHandler.ypos()
-						* minecraft.getWindow().getGuiScaledHeight()
-						/ minecraft.getWindow().getScreenHeight();
+					double mouseY = minecraft.mouseHandler.ypos()
+							* minecraft.getWindow().getGuiScaledHeight()
+							/ minecraft.getWindow().getScreenHeight();
 
-				config.timerX = (int) mouseX;
-				config.timerY = (int) mouseY;
-				ConfigManager.save();
+					int xf = config.fpsX;
+					int yf = config.fpsY;
 
-				minecraft.setScreen(
-						new TimerConfig(Component.empty())
-				);
+					fps = "FPS: " + Minecraft.getInstance().getFps();
+					int widthf = minecraft.font.width(fps);
+					int heightf = minecraft.font.lineHeight;
+
+					boolean hoveringfps =
+							mouseX >= xf &&
+									mouseX <= xf + widthf &&
+									mouseY >= yf &&
+									mouseY <= yf + heightf;
+
+					if (hoveringfps && selected == 0) {
+						selected = 1;
+					}
+					if (selected == 1) {
+						config.fpsX = ((int) (mouseX - widthf / 2) / 10) * 10;
+						config.fpsY = ((int) (mouseY + heightf / 2) / 10) * 10;
+						ConfigManager.save();
+					}
+
+					// TIMER DRAGGER
+					int xt = config.timerX;
+					int yt = config.timerY;
+
+					int widtht = minecraft.font.width(config.timer);
+					int heightt = minecraft.font.lineHeight;
+
+					boolean hoveringtimer =
+							mouseX >= xt &&
+									mouseX <= xt + widtht &&
+									mouseY >= yt &&
+									mouseY <= yt + heightt;
+					if (hoveringtimer && selected == 0) {
+						selected = 2;
+					}
+					if (selected == 2) {
+						config.timerX = ((int) (mouseX - widtht / 2) / 10) * 10;
+						config.timerY = ((int) (mouseY + heightt / 2) / 10) * 10;
+						ConfigManager.save();
+					}
+
+					// SPRINTING DRAGGER
+					int xs = config.sprintX;
+					int ys = config.sprintY;
+
+					int widths = minecraft.font.width(config.timer);
+					int heights = minecraft.font.lineHeight;
+
+					boolean hoveringsprint =
+							mouseX >= xs &&
+									mouseX <= xs + widths &&
+									mouseY >= ys &&
+									mouseY <= ys + heights;
+					if (hoveringsprint && selected == 0) {
+						selected = 3;
+					}
+					if (selected == 3) {
+						config.sprintX = ((int) (mouseX - widths / 2) / 10) * 10;
+						config.sprintY = ((int) (mouseY + heights / 2) / 10) * 10;
+						ConfigManager.save();
+					}
+				}
+				else if (selected != 0){
+					selected = 0;
+				}
 			}
 
 			// TIMER SWITCHER
@@ -362,6 +429,15 @@ public class EclipseClient implements ClientModInitializer {
 						Minecraft.getInstance().getToastManager().addToast(
 								SystemToast.multiline(Minecraft.getInstance(), SystemToast.SystemToastId.NARRATOR_TOGGLE, Component.nullToEmpty("Sprint"), Component.nullToEmpty("Sprint is now " + config.autoSprint))
 						);
+						return 1;
+					})
+			);
+
+			// TOGGLE AUTOSPRINT VISUAL
+			dispatcher.register(ClientCommands.literal("toggle.autosprint.visual")
+					.executes(context -> {
+						config.sprintVisual = !config.sprintVisual;
+						ConfigManager.save();
 						return 1;
 					})
 			);
@@ -462,7 +538,7 @@ public class EclipseClient implements ClientModInitializer {
 		if (config.fps) {
 			graphics.text(
 					Minecraft.getInstance().font,
-					String.valueOf(Minecraft.getInstance().getFps()),
+					fps,
 					config.fpsX,
 					config.fpsY,
 					0xFFFFFFFF
@@ -476,6 +552,17 @@ public class EclipseClient implements ClientModInitializer {
 					config.timer,
 					config.timerX,
 					config.timerY,
+					0xFFFFFFFF
+			);
+		}
+
+		// SPRINT DISPLAY
+		if (config.sprintVisual) {
+			graphics.text(
+					Minecraft.getInstance().font,
+					config.sprint ? "SPRINTING" : "WALKING",
+					config.sprintX,
+					config.sprintY,
 					0xFFFFFFFF
 			);
 		}

@@ -29,5 +29,11 @@ public class CustomScreen extends Screen {
                     Minecraft.getInstance().setScreen(new TimerConfig(Component.empty()));
                 }).bounds(x, 80, buttonWidth, buttonHeight).build()
         );
+
+        this.addRenderableWidget(
+                Button.builder(Component.literal("MOVE WIDGETS"), (btn) -> {
+                    Minecraft.getInstance().setScreen(new Drager(Component.empty()));
+                }).bounds(x, 120, buttonWidth, buttonHeight).build()
+        );
     }
 }
