@@ -3,7 +3,7 @@
 	"package": "com.eclipse.client.mixin",
 	"compatibilityLevel": "JAVA_25",
 	"client": [
-      "com.eclipse.mixin.ExampleClientMixin"
+      "ExampleClientMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

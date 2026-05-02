@@ -2,13 +2,12 @@
 This _Clientside_ Mod is meant as a collection of client-side utilities. This mod is still work in progress.
 ## Features:
 >- **/toggle.fps** shows fps count in actionbar (defaults to false)
->- **/toggle.sprint** toggles sprinting (defaults to true)
->- **/reload** reloads the recourcepacks
+>- **/toggle.autosprint** toggles autosprint (defaults to true)
 >- **/enable.pvp** enables pvp mode, more info below (defaults to true)
 >- **/freecam** toggles freecam, more info below (defaults to false)
 >- **/timer + expansion** more Info below
 >- **/freecamspeed** + float
->- **/fpscolor** + int
+>- Config GUI open via **K**
 
 ### PVP MODE
 the **PVP MODE** sets *various* Minecraft options to the best values for pvp.
@@ -20,13 +19,6 @@ the **PVP MODE** sets *various* Minecraft options to the best values for pvp.
 > - no fov effect (this makes that if you accelerate your fov is not changing)
 > - no entity shadows (disables the entity shadows, what can cause performance impacts)
 
-### FREECAM
-the **FREECAM** is still in development. (How it works below)
-
-> 1. Summons an InteractionEntity
-> 2. Sets the PlayerCamera in the InteractionEntity
-> 3. Every tick the rot of the InteractionEntity is synced with the player rot
-
 ### Timer
 The timer adds a stopwatch (*brillant*) in the actionbar.
 > - **/timer.toggle** toggles timer
@@ -34,7 +26,6 @@ The timer adds a stopwatch (*brillant*) in the actionbar.
 > - **/timer.stop** stops timer
 > - **/timer.restart** restarts the timer
 > - **/timer.toggleMode** switches between analog and digital timer mode
-> - **/timercolor** sets the color
 
 ## Basic UPDATE 1.0.0
 - [x] Auto Sprinting
@@ -88,13 +79,36 @@ The timer adds a stopwatch (*brillant*) in the actionbar.
 ## Rename UPDATE 1.1.1
 - [x] Renamed config file
 
-## Rename UPDATE 1.1.2
+## Back To The Past UPDATE 1.1.2
 - [x] Brought all new features in 1.21.11
 
-**.  .  .**
+## Better UPDATE 1.1.3
+- [x] better code
+- [x] better timer logic
+- [x] config gui
+- [x] freecam hand fix
+- [x] less crashes
+- [x] timer & Fps hud portable
+- [x] threw aways: reload, colortimer, colorfps
+- [x] Save Config fix
+- [x] better readable code
+- [x] better autosprint
+- [x] better freecam speed control
 
-## Modmenu UPDATE x.x.x
-- [ ] Modmenu Configuration
+## OLDER Better UPDATE 1.1.3
+- [x] better code
+- [x] better timer logic
+- [x] config gui
+- [x] freecam hand fix
+- [x] less crashes
+- [x] timer & Fps hud portable
+- [x] threw aways: reload, colortimer, colorfps
+- [x] Save Config fix
+- [x] better readable code
+- [x] better autosprint
+- [x] better freecam speed control
+
+
 
 In case of you having any brilliant ideas, please submit them here:
 https://docs.google.com/forms/d/e/1FAIpQLSdC_3SM02lKfVTV1IyXYU7uZB4V9yEyLHUcJbVV_DdIoP3lsA/viewform?usp=publish-editor
