@@ -4,6 +4,7 @@ import com.eclipse.client.ConfigScreen.CustomScreen;
 import com.eclipse.client.ConfigScreen.Drager;
 import com.eclipse.client.config.ConfigManager;
 import com.eclipse.client.config.ModConfig;
+import com.mojang.authlib.minecraft.client.MinecraftClient;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.brigadier.arguments.FloatArgumentType;
@@ -12,8 +13,10 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallba
 import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
+import net.fabricmc.fabric.api.client.renderer.v1.Renderer;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
+import net.fabricmc.fabric.api.resource.v1.reloader.ResourceReloaderKeys;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -175,6 +178,21 @@ public class EclipseClient implements ClientModInitializer {
 		ConfigManager.save();
 	}
 
+	// RETURN GAMMA STATE
+	public static boolean getGamma() {
+		return config.gamma;
+	}
+
+	// TOGGLE GAMMA
+	public static void toggleGamma() {
+		Minecraft mc = Minecraft.getInstance();
+		config.gamma = !config.gamma;
+		ConfigManager.save();
+		mc.getToastManager().addToast(
+				SystemToast.multiline(mc, SystemToast.SystemToastId.NARRATOR_TOGGLE, Component.nullToEmpty("Gamma"), Component.nullToEmpty("is now " + config.gamma))
+		);
+	}
+
 	@Override
 	public void onInitializeClient() {
 		// CONFIG INITIALIZER
@@ -195,37 +213,45 @@ public class EclipseClient implements ClientModInitializer {
 		);
 
 		// KEYMAPPINGS
-			KeyMapping ts = KeyMappingHelper.registerKeyMapping(
-					new KeyMapping(
-							"Toggle Sprint",
-							InputConstants.Type.KEYSYM,
-							GLFW.GLFW_KEY_LEFT_CONTROL,
-							CATEGORY
-					));
+		KeyMapping ts = KeyMappingHelper.registerKeyMapping(
+				new KeyMapping(
+						"Toggle Sprint",
+						InputConstants.Type.KEYSYM,
+						GLFW.GLFW_KEY_LEFT_CONTROL,
+						CATEGORY
+				));
 
-			KeyMapping tf = KeyMappingHelper.registerKeyMapping(
-					new KeyMapping(
-							"Toggle Fps",
-							InputConstants.Type.KEYSYM,
-							GLFW.GLFW_KEY_F6,
-							CATEGORY
-					));
+		KeyMapping tf = KeyMappingHelper.registerKeyMapping(
+				new KeyMapping(
+						"Toggle Fps",
+						InputConstants.Type.KEYSYM,
+						GLFW.GLFW_KEY_F6,
+						CATEGORY
+				));
 
-			KeyMapping freec = KeyMappingHelper.registerKeyMapping(
-					new KeyMapping(
-							"Toggle Freecam",
-							InputConstants.Type.KEYSYM,
-							GLFW.GLFW_KEY_F4,
-							CATEGORY
-					));
+		KeyMapping freec = KeyMappingHelper.registerKeyMapping(
+				new KeyMapping(
+						"Toggle Freecam",
+						InputConstants.Type.KEYSYM,
+						GLFW.GLFW_KEY_F4,
+						CATEGORY
+				));
 
-			KeyMapping screenKey = KeyMappingHelper.registerKeyMapping(
-					new KeyMapping(
-							"Toggles Config Menu",
-							InputConstants.Type.KEYSYM,
-							GLFW.GLFW_KEY_K,
-							CATEGORY
-					));
+		KeyMapping screenKey = KeyMappingHelper.registerKeyMapping(
+				new KeyMapping(
+						"Toggles Config Menu",
+						InputConstants.Type.KEYSYM,
+						GLFW.GLFW_KEY_K,
+						CATEGORY
+				));
+
+		KeyMapping gammaKey = KeyMappingHelper.registerKeyMapping(
+				new KeyMapping(
+						"Toggles Gamma",
+						InputConstants.Type.KEYSYM,
+						GLFW.GLFW_KEY_J,
+						CATEGORY
+				));
 
 		// TICK LOGIC
 		ClientTickEvents.END_CLIENT_TICK.register((minecraft -> {
@@ -261,6 +287,11 @@ public class EclipseClient implements ClientModInitializer {
 				minecraft.setScreen(
 						new CustomScreen(Component.empty())
 				);
+			}
+
+			// GAMMA TOGGLE
+			while (gammaKey.consumeClick()) {
+				toggleGamma();
 			}
 
 			// TOGGLE SPRINT
@@ -330,7 +361,7 @@ public class EclipseClient implements ClientModInitializer {
 					int xs = config.sprintX;
 					int ys = config.sprintY;
 
-					int widths = minecraft.font.width(config.timer);
+					int widths = minecraft.font.width(config.sprint ? "SPRINTING" : "WALKING");
 					int heights = minecraft.font.lineHeight;
 
 					boolean hoveringsprint =
@@ -373,36 +404,60 @@ public class EclipseClient implements ClientModInitializer {
 				freecamEntity.setXRot(activePlayer.getXRot());
 				freecamEntity.setYRot(activePlayer.getYRot());
 
-				// FREECAM UPWARD
+				float yaw = freecamEntity.getYRot();
+
+				Vec3 forward = new Vec3(
+						-Math.sin(Math.toRadians(yaw)),
+						0,
+						Math.cos(Math.toRadians(yaw))
+				).normalize();
+
+				Vec3 right = new Vec3(
+						-forward.z,
+						0,
+						forward.x
+				).normalize();
+
+				double x = freecamEntity.getX();
+				double y = freecamEntity.getY();
+				double z = freecamEntity.getZ();
+
+				// UP
 				if (InputConstants.isKeyDown(window, GLFW.GLFW_KEY_SPACE)) {
-					freecamEntity.setPos(freecamEntity.getX(), freecamEntity.getY() + 1, freecamEntity.getZ());
+					y += config.distance;
 				}
 
-				// FREECAM FORWARD
+				// DOWN
+				if (InputConstants.isKeyDown(window, GLFW.GLFW_KEY_LEFT_SHIFT)) {
+					y -= config.distance;
+				}
+
+				// FORWARD
 				if (InputConstants.isKeyDown(window, GLFW.GLFW_KEY_W)) {
-					Vec3 look = freecamEntity.getLookAngle();
-					freecamEntity.setPos(freecamEntity.getX() + (look.x * config.distance), freecamEntity.getY() + (look.y * config.distance), freecamEntity.getZ() + (look.z * config.distance));
+					x += forward.x * config.distance;
+					z += forward.z * config.distance;
 				}
 
-				// FREECAM BACKWARD
+				// BACKWARD
 				if (InputConstants.isKeyDown(window, GLFW.GLFW_KEY_S)) {
-					Vec3 look = freecamEntity.getLookAngle();
-					freecamEntity.setPos(freecamEntity.getX() + (look.x * -config.distance), freecamEntity.getY() + (look.y * -config.distance), freecamEntity.getZ() + (look.z * -config.distance));
+					x -= forward.x * config.distance;
+					z -= forward.z * config.distance;
 				}
 
-				// FREECAM LEFT
+				// LEFT
 				if (InputConstants.isKeyDown(window, GLFW.GLFW_KEY_A)) {
-					Vec3 look = freecamEntity.getLookAngle();
-					Vec3 right = new Vec3(-look.z, 0, look.x).normalize();
-					freecamEntity.setPos(freecamEntity.getX() - (right.x * config.distance), freecamEntity.getY(), freecamEntity.getZ() - (right.z * config.distance));
+					x -= right.x * config.distance;
+					z -= right.z * config.distance;
 				}
 
-				// FREECAM RIGHT
+				// RIGHT
 				if (InputConstants.isKeyDown(window, GLFW.GLFW_KEY_D)) {
-					Vec3 look = freecamEntity.getLookAngle();
-					Vec3 right = new Vec3(-look.z, 0, look.x).normalize();
-					freecamEntity.setPos(freecamEntity.getX() + (right.x * config.distance), freecamEntity.getY(), freecamEntity.getZ() + (right.z * config.distance));
+					x += right.x * config.distance;
+					z += right.z * config.distance;
 				}
+
+				freecamEntity.setPos(x, y, z);
+
 
 				// ANTI-HACK SYNC
 				uncheater.setPos(freecamEntity.getX(), freecamEntity.getY() - 0.25, freecamEntity.getZ());
@@ -412,38 +467,48 @@ public class EclipseClient implements ClientModInitializer {
 
 		// COMMANDS
 		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
+			dispatcher.register(ClientCommands.literal("toggle")
 
-			// TOGGLE FPS
-			dispatcher.register(ClientCommands.literal("toggle.fps")
-					.executes(context -> {
-						toggleFPS();
-						return 1;
-					})
-			);
+					// TOGGLE FPS
+					.then(ClientCommands.literal("fps")
+							.executes(context -> {
+								toggleFPS();
+								return 1;
+							})
+					)
 
-			// TOGGLE AUTOSPRINT
-			dispatcher.register(ClientCommands.literal("toggle.autosprint")
-					.executes(context -> {
-						config.autoSprint = !config.autoSprint;
-						ConfigManager.save();
-						Minecraft.getInstance().getToastManager().addToast(
-								SystemToast.multiline(Minecraft.getInstance(), SystemToast.SystemToastId.NARRATOR_TOGGLE, Component.nullToEmpty("Sprint"), Component.nullToEmpty("Sprint is now " + config.autoSprint))
-						);
-						return 1;
-					})
-			);
+					// TOGGLE GAMMA
+					.then(ClientCommands.literal("gamma")
+							.executes(context -> {
+								toggleGamma();
+								return 1;
+							})
+					)
 
-			// TOGGLE AUTOSPRINT VISUAL
-			dispatcher.register(ClientCommands.literal("toggle.autosprint.visual")
-					.executes(context -> {
-						config.sprintVisual = !config.sprintVisual;
-						ConfigManager.save();
-						return 1;
-					})
+					// TOGGLE SPRINT VISUAL
+					.then(ClientCommands.literal("sprintvisual")
+							.executes(context -> {
+								config.sprintVisual = !config.sprintVisual;
+								ConfigManager.save();
+								return 1;
+							})
+					)
+
+					// TOGGLE AUTOSPRINT
+					.then(ClientCommands.literal("autosprint")
+							.executes(context -> {
+								config.autoSprint = !config.autoSprint;
+								ConfigManager.save();
+								Minecraft.getInstance().getToastManager().addToast(
+										SystemToast.multiline(Minecraft.getInstance(), SystemToast.SystemToastId.NARRATOR_TOGGLE, Component.nullToEmpty("Sprint"), Component.nullToEmpty("Sprint is now " + config.autoSprint))
+								);
+								return 1;
+							})
+					)
 			);
 
 			// ENABLE PVP MODE
-			dispatcher.register(ClientCommands.literal("enable.pvp")
+			dispatcher.register(ClientCommands.literal("pvp")
 					.executes(context -> {
 						setPvp();
 						Minecraft.getInstance().getToastManager().addToast(
@@ -455,77 +520,82 @@ public class EclipseClient implements ClientModInitializer {
 
 			// TOGGLE FREECAM
 			dispatcher.register(ClientCommands.literal("freecam")
-					.executes(context -> {
-						toggleFreecam();
-						return 1;
-					})
-			);
-
-			// START TIMER
-			dispatcher.register(ClientCommands.literal("timer.start")
-					.executes(context -> {
-						controlTimer("started");
-						return 1;
-					})
-			);
-
-			// RESTART TIMER
-			dispatcher.register(ClientCommands.literal("timer.restart")
-					.executes(context -> {
-						timerRestart();
-						return 1;
-					})
-			);
-
-			// STOP TIMER
-			dispatcher.register(ClientCommands.literal("timer.stop")
-					.executes(context -> {
-						controlTimer("stopped");
-						return 1;
-					})
-			);
-
-			// TOGGLE TIMER
-			dispatcher.register(ClientCommands.literal("toggle.timer")
-					.executes(context -> {
-						toggleTimer();
-						return 1;
-					})
-			);
-
-			// TOGGLE TIMER MODE
-			dispatcher.register(ClientCommands.literal("timer.toggle.mode")
-					.executes(context -> {
-						config.digital = !config.digital;
-						Minecraft mc = Minecraft.getInstance();
-						mc.getToastManager().addToast(
-								SystemToast.multiline(
-										mc,
-										SystemToast.SystemToastId.NARRATOR_TOGGLE,
-										Component.nullToEmpty("Timer"),
-										Component.nullToEmpty("Digital mode is now " + config.digital)
-								)
-						);
-						return 1;
-					})
-			);
-
-			// SET NEW / RESET FREECAMSPEED
-			dispatcher.register(ClientCommands.literal("freecamspeed")
-					.executes(context -> {
-						config.distance = 1.0f;
-						ConfigManager.save();
-						return 1;
-					})
-					.then(ClientCommands.argument("1", FloatArgumentType.floatArg())
+					.then(ClientCommands.literal("toggle")
 							.executes(context -> {
-								config.distance = FloatArgumentType.getFloat(context, "1");
+								toggleFreecam();
+								return 1;
+							})
+					)
+
+					// CHANGE SPEED
+					.then(ClientCommands.literal("speed")
+							.executes(context -> {
+								config.distance = 1.0f;
 								ConfigManager.save();
+								return 1;
+							})
+							.then(ClientCommands.argument("1", FloatArgumentType.floatArg())
+									.executes(context -> {
+										config.distance = FloatArgumentType.getFloat(context, "1");
+										ConfigManager.save();
+										return 1;
+									})
+							)
+					)
+
+			);
+
+			dispatcher.register(ClientCommands.literal("timer")
+
+					// START TIMER
+					.then(ClientCommands.literal("start")
+							.executes(context -> {
+								controlTimer("started");
+								return 1;
+							})
+					)
+
+					// RESTART TIMER
+					.then(ClientCommands.literal("restart")
+							.executes(context -> {
+								timerRestart();
+								return 1;
+							})
+					)
+
+					// STOP TIMER
+					.then(ClientCommands.literal("stop")
+							.executes(context -> {
+								controlTimer("stopped");
+								return 1;
+							})
+					)
+
+					// TOGGLE VISIBILITY
+					.then(ClientCommands.literal("toggle")
+							.executes(context -> {
+								toggleTimer();
+								return 1;
+							})
+					)
+
+					// TOGGLE TIMER MODE
+					.then(ClientCommands.literal("togglemode")
+							.executes(context -> {
+								config.digital = !config.digital;
+								Minecraft mc = Minecraft.getInstance();
+								mc.getToastManager().addToast(
+										SystemToast.multiline(
+												mc,
+												SystemToast.SystemToastId.NARRATOR_TOGGLE,
+												Component.nullToEmpty("Timer"),
+												Component.nullToEmpty("Digital mode is now " + config.digital)
+										)
+								);
 								return 1;
 							})
 					)
 			);
-
 		});
 	}
 

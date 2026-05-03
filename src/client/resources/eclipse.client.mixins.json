@@ -3,7 +3,8 @@
 	"package": "com.eclipse.client.mixin",
 	"compatibilityLevel": "JAVA_25",
 	"client": [
-      "ExampleClientMixin"
+      "FreecamMixin",
+	  "FullbrightMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
