@@ -16,7 +16,7 @@ public final class ConfigManager {
             .getConfigDir()
             .resolve("eclipse.json");
 
-    private static ModConfig config = new ModConfig();
+    public static ModConfig config = new ModConfig();
 
     private ConfigManager() {}
 

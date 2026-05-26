@@ -1,13 +1,14 @@
 # **Eclipse**
 This _Clientside_ Mod is meant as a collection of client-side utilities. This mod is still work in progress.
 ## Features:
->- **/toggle.fps** shows fps count in actionbar (defaults to false)
->- **/toggle.autosprint** toggles autosprint (defaults to true)
->- **/enable.pvp** enables pvp mode, more info below (defaults to true)
->- **/freecam** toggles freecam, more info below (defaults to false)
+>- **/toggle fps** shows fps count in actionbar (defaults to false)
+>- **/toggle autosprint** toggles autosprint (defaults to true)
+>- **/pvp** enables pvp mode, more info below (defaults to true)
+>- **/freecam toggle** toggles freecam, more info below (defaults to false)
 >- **/timer + expansion** more Info below
->- **/freecamspeed** + float
->- **/toggle.autosprint.visual** toggles the DISPLAY of autosprint
+>- **/freecam speed** + float
+>- **/toggle sprintvisual** toggles the DISPLAY of autosprint
+>- **/toggle fog** toggles nofog
 >- Config GUI open via **K**
 
 ### PVP MODE
@@ -22,11 +23,11 @@ the **PVP MODE** sets *various* Minecraft options to the best values for pvp.
 
 ### Timer
 The timer adds a stopwatch (*brillant*) in the actionbar.
-> - **/timer.toggle** toggles timer
-> - **/timer.start** starts timer
-> - **/timer.stop** stops timer
-> - **/timer.restart** restarts the timer
-> - **/timer.toggleMode** switches between analog and digital timer mode
+> - **/timer toggle** toggles timer
+> - **/timer start** starts timer
+> - **/timer stop** stops timer
+> - **/timer restart** restarts the timer
+> - **/timer togglemode** switches between analog and digital timer mode
 
 ## Basic UPDATE 1.0.0
 - [x] Auto Sprinting
@@ -109,19 +110,25 @@ The timer adds a stopwatch (*brillant*) in the actionbar.
 - [x] better autosprint
 - [x] better freecam speed control
 
-## MOVE UPDATE 1.1.4
+## Better UPDATE 1.1.4
 - [x] No Blur in move mode
 - [x] made only 1 move mode
 - [x] added grid to moving
 - [x] removed losing Focus while dragging
 - [x] added autosprint to HUD
 
-## OLDER MOVE UPDATE 1.1.4
+## OLDER Better UPDATE 1.1.4
 - [x] No Blur in move mode
 - [x] made only 1 move mode
 - [x] added grid to moving
 - [x] removed losing Focus while dragging
 - [x] added autosprint to HUD
+
+## Mixin Better UPDATE 1.1.5
+- [x] No Server-Side Freecam Check
+- [x] no fog
+- [x] optimized code
+- [x] better Freecam Performence
 
 
 

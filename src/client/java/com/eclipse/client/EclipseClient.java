@@ -16,6 +16,7 @@ import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.renderer.v1.Renderer;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
+import net.fabricmc.fabric.api.event.player.*;
 import net.fabricmc.fabric.api.resource.v1.reloader.ResourceReloaderKeys;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.KeyMapping;
@@ -24,19 +25,20 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Interaction;
+import net.minecraft.world.entity.player.PlayerEquipment;
 import net.minecraft.world.phys.Vec3;
 import org.lwjgl.glfw.GLFW;
 
 public class EclipseClient implements ClientModInitializer {
 	public static boolean freecam = false;
 	private static ModConfig config;
-	private static Interaction freecamEntity;
-    private static Interaction uncheater;
+	static Interaction freecamEntity;
 	private static String fps;
-	private static int selected;
-	private final KeyMapping.Category CATEGORY
+	private static int selected = 0;
+    private final KeyMapping.Category CATEGORY
 			= KeyMapping.Category.register(
 			Identifier.fromNamespaceAndPath("eclipse", "controlys")
 	);
@@ -50,46 +52,6 @@ public class EclipseClient implements ClientModInitializer {
 		Minecraft.getInstance().options.fovEffectScale().set(0d);
 		Minecraft.getInstance().options.entityShadows().set(false);
 		Minecraft.getInstance().options.save();
-	}
-
-	// FREECAM
-	public static void toggleFreecam() {
-		Minecraft mc = Minecraft.getInstance();
-		if (mc.player == null || mc.level == null) return;
-		if (!freecam) {
-			uncheater = new Interaction(EntityType.INTERACTION, mc.player.level());
-			freecamEntity = new Interaction(EntityType.INTERACTION, mc.player.level());
-			freecamEntity.setPos(mc.player.getX(), mc.player.getY() + 2, mc.player.getZ());
-			uncheater.setWidth(0.5f);
-			uncheater.setHeight(0.5f);
-			freecamEntity.setWidth(0);
-			freecamEntity.setHeight(0);
-			mc.level.addEntity(freecamEntity);
-			mc.level.addEntity(uncheater);
-			mc.setCameraEntity(freecamEntity);
-			config.cacheSprint = config.sprint;
-			config.sprint = false;
-			ConfigManager.save();
-		}
-		freecam = !freecam;
-		if (!freecam) {
-			config.sprint = config.cacheSprint;
-			ConfigManager.save();
-			mc.setCameraEntity(mc.player);
-			if (uncheater != null) {
-				uncheater.discard();
-				uncheater = null;
-			}
-
-			if (freecamEntity != null) {
-				freecamEntity.discard();
-				freecamEntity = null;
-			}
-
-		}
-		mc.getToastManager().addToast(
-				SystemToast.multiline(mc, SystemToast.SystemToastId.NARRATOR_TOGGLE, Component.nullToEmpty("Freecam"), Component.nullToEmpty("is now " + freecam))
-		);
 	}
 
 	// FPS TOGGLE
@@ -193,6 +155,11 @@ public class EclipseClient implements ClientModInitializer {
 		);
 	}
 
+	// ANTI-CHEAT
+	private static InteractionResult cancelIfFreecam() {
+		return freecam ? InteractionResult.FAIL : InteractionResult.PASS;
+	}
+
 	@Override
 	public void onInitializeClient() {
 		// CONFIG INITIALIZER
@@ -279,7 +246,7 @@ public class EclipseClient implements ClientModInitializer {
 
 			// FREECAM TOGGLE
 			while (freec.consumeClick()) {
-				toggleFreecam();
+				Freecam.toggle();
 			}
 
 			// CONFIG SCREEN OPENING
@@ -295,7 +262,7 @@ public class EclipseClient implements ClientModInitializer {
 			}
 
 			// TOGGLE SPRINT
-			if (config.sprint && !activePlayer.isSprinting()  && config.autoSprint) activePlayer.setSprinting(true);
+			if (config.sprint && !activePlayer.isSprinting() && config.autoSprint) activePlayer.setSprinting(true);
 
 			// FPS SETTING
 			if (config.fps) {
@@ -400,7 +367,7 @@ public class EclipseClient implements ClientModInitializer {
 			if (minecraft.screen != null) return;
 
 			// FREECAM MOVEMENT
-			if (freecam && freecamEntity != null && uncheater != null) {
+			if (freecam && freecamEntity != null) {
 				freecamEntity.setXRot(activePlayer.getXRot());
 				freecamEntity.setYRot(activePlayer.getYRot());
 
@@ -456,18 +423,46 @@ public class EclipseClient implements ClientModInitializer {
 					z += right.z * config.distance;
 				}
 
+				// POS SYNC
 				freecamEntity.setPos(x, y, z);
-
-
-				// ANTI-HACK SYNC
-				uncheater.setPos(freecamEntity.getX(), freecamEntity.getY() - 0.25, freecamEntity.getZ());
 			}
 
 		}));
 
+		// ANTI-CHEAT FREECAM
+		UseBlockCallback.EVENT.register((player, level, hand, hitResult) -> {
+			return cancelIfFreecam();
+		});
+
+		UseEntityCallback.EVENT.register((player, level, hand, entity, hitResult) -> {
+			return cancelIfFreecam();
+		});
+
+		AttackEntityCallback.EVENT.register((player, level, hand, entity, hitResult) -> {
+			return cancelIfFreecam();
+		});
+
+		AttackBlockCallback.EVENT.register((player, level, hand, pos, direction) -> {
+			return cancelIfFreecam();
+		});
+
+
+
 		// COMMANDS
 		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
 			dispatcher.register(ClientCommands.literal("toggle")
+
+					// TOGGLE FOG
+					.then(ClientCommands.literal("fog")
+							.executes(context -> {
+								config.nofog = !config.nofog;
+								ConfigManager.save();
+								Minecraft.getInstance().getToastManager().addToast(
+										SystemToast.multiline(Minecraft.getInstance(), SystemToast.SystemToastId.NARRATOR_TOGGLE, Component.nullToEmpty("Nofog"), Component.nullToEmpty("is now " + config.nofog))
+								);
+								return 1;
+							})
+					)
 
 					// TOGGLE FPS
 					.then(ClientCommands.literal("fps")
@@ -518,11 +513,18 @@ public class EclipseClient implements ClientModInitializer {
 					})
 			);
 
+			// TEST COMMAND
+			dispatcher.register(ClientCommands.literal("ttt")
+					.executes(context -> {
+						return 1;
+					})
+			);
+
 			// TOGGLE FREECAM
 			dispatcher.register(ClientCommands.literal("freecam")
 					.then(ClientCommands.literal("toggle")
 							.executes(context -> {
-								toggleFreecam();
+								Freecam.toggle();
 								return 1;
 							})
 					)

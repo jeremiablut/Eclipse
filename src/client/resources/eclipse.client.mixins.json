@@ -4,7 +4,9 @@
 	"compatibilityLevel": "JAVA_25",
 	"client": [
       "FreecamMixin",
-	  "FullbrightMixin"
+	  "FullbrightMixin",
+	  "UnboundRotationMixin",
+	  "FogRemoverMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
