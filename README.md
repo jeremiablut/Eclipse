@@ -130,6 +130,10 @@ The timer adds a stopwatch (*brillant*) in the actionbar.
 - [x] optimized code
 - [x] better Freecam Performence
 
+## Mixin Freecam But Better UPDATE 1.1.6
+- [x] You can now see yourself in Freecam
+- [x] Freecam Movement was made much better
+
 
 
 In case of you having any brilliant ideas, please submit them here:
