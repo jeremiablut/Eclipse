@@ -12,10 +12,12 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.renderer.v1.Renderer;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLevelEvents;
 import net.fabricmc.fabric.api.event.player.*;
 import net.fabricmc.fabric.api.resource.v1.reloader.ResourceReloaderKeys;
 import net.minecraft.client.DeltaTracker;
@@ -35,8 +37,9 @@ import org.lwjgl.glfw.GLFW;
 public class EclipseClient implements ClientModInitializer {
 	public static boolean freecam = false;
 	private static ModConfig config;
-	static Interaction freecamEntity;
+	public static FreecamEntity freecamEntity;
 	private static String fps;
+	private int waitforit = 0;
 	private static int selected = 0;
     private final KeyMapping.Category CATEGORY
 			= KeyMapping.Category.register(
@@ -244,6 +247,13 @@ public class EclipseClient implements ClientModInitializer {
 				toggleFPS();
 			}
 
+			// NO FOG FIX
+			if (waitforit <= 10) {
+				waitforit++;
+			} else if (waitforit == 11) {
+				config.nofog = true;
+			}
+
 			// FREECAM TOGGLE
 			while (freec.consumeClick()) {
 				Freecam.toggle();
@@ -368,15 +378,14 @@ public class EclipseClient implements ClientModInitializer {
 
 			// FREECAM MOVEMENT
 			if (freecam && freecamEntity != null) {
-				freecamEntity.setXRot(activePlayer.getXRot());
-				freecamEntity.setYRot(activePlayer.getYRot());
 
-				float yaw = freecamEntity.getYRot();
+				freecamEntity.setYRot(activePlayer.getYRot());
+				freecamEntity.setXRot(activePlayer.getXRot());
 
 				Vec3 forward = new Vec3(
-						-Math.sin(Math.toRadians(yaw)),
+						-Math.sin(Math.toRadians(activePlayer.getYRot())),
 						0,
-						Math.cos(Math.toRadians(yaw))
+						Math.cos(Math.toRadians(activePlayer.getYRot()))
 				).normalize();
 
 				Vec3 right = new Vec3(
@@ -385,43 +394,44 @@ public class EclipseClient implements ClientModInitializer {
 						forward.x
 				).normalize();
 
+
+
 				double x = freecamEntity.getX();
 				double y = freecamEntity.getY();
 				double z = freecamEntity.getZ();
 
-				// UP
-				if (InputConstants.isKeyDown(window, GLFW.GLFW_KEY_SPACE)) {
-					y += config.distance;
-				}
+				Vec3 motion = Vec3.ZERO;
 
-				// DOWN
-				if (InputConstants.isKeyDown(window, GLFW.GLFW_KEY_LEFT_SHIFT)) {
-					y -= config.distance;
-				}
-
-				// FORWARD
 				if (InputConstants.isKeyDown(window, GLFW.GLFW_KEY_W)) {
-					x += forward.x * config.distance;
-					z += forward.z * config.distance;
+					motion = motion.add(forward);
 				}
-
-				// BACKWARD
 				if (InputConstants.isKeyDown(window, GLFW.GLFW_KEY_S)) {
-					x -= forward.x * config.distance;
-					z -= forward.z * config.distance;
+					motion = motion.subtract(forward);
 				}
-
-				// LEFT
 				if (InputConstants.isKeyDown(window, GLFW.GLFW_KEY_A)) {
-					x -= right.x * config.distance;
-					z -= right.z * config.distance;
+					motion = motion.subtract(right);
+				}
+				if (InputConstants.isKeyDown(window, GLFW.GLFW_KEY_D)) {
+					motion = motion.add(right);
 				}
 
-				// RIGHT
-				if (InputConstants.isKeyDown(window, GLFW.GLFW_KEY_D)) {
-					x += right.x * config.distance;
-					z += right.z * config.distance;
+				// vertical extra
+				if (InputConstants.isKeyDown(window, GLFW.GLFW_KEY_SPACE)) {
+					motion = motion.add(0, 1, 0);
 				}
+				if (InputConstants.isKeyDown(window, GLFW.GLFW_KEY_LEFT_SHIFT)) {
+					motion = motion.add(0, -1, 0);
+				}
+
+				Vec3 current = freecamEntity.getDeltaMovement();
+				Vec3 target = motion.normalize().scale(config.distance);
+
+				double smoothing = 0.2;
+
+				Vec3 smoothed = current.add(target.subtract(current).scale(smoothing));
+
+				freecamEntity.setDeltaMovement(smoothed);
+
 
 				// POS SYNC
 				freecamEntity.setPos(x, y, z);
@@ -446,6 +456,16 @@ public class EclipseClient implements ClientModInitializer {
 			return cancelIfFreecam();
 		});
 
+		UseItemCallback.EVENT.register((player, level, interactionHand) -> {
+			return cancelIfFreecam();
+		});
+
+		// UN FOG PROBLEM
+		ServerLevelEvents.LOAD.register((minecraftServer, serverLevel) -> {
+			if (!config.nofog) return;
+			config.nofog = false;
+			waitforit = 0;
+		});
 
 
 		// COMMANDS

@@ -3,10 +3,11 @@
 	"package": "com.eclipse.client.mixin",
 	"compatibilityLevel": "JAVA_25",
 	"client": [
-      "FreecamMixin",
-	  "FullbrightMixin",
-	  "UnboundRotationMixin",
-	  "FogRemoverMixin"
+      	"FreecamMixin",
+	  	"FullbrightMixin",
+	  	"UnboundRotationMixin",
+	  	"FogRemoverMixin",
+		"PlayerMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

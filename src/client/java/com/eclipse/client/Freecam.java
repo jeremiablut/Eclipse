@@ -25,10 +25,8 @@ public class Freecam {
 
         if (freecam) return;
 
-        freecamEntity = new Interaction(EntityType.INTERACTION, mc.level);
+        freecamEntity = new FreecamEntity(mc.level);
         freecamEntity.setPos(mc.player.getX(), mc.player.getY() + 2, mc.player.getZ());
-        freecamEntity.setWidth(0);
-        freecamEntity.setHeight(0);
 
         mc.level.addEntity(freecamEntity);
         mc.setCameraEntity(freecamEntity);
