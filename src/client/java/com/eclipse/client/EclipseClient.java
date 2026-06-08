@@ -4,38 +4,45 @@ import com.eclipse.client.ConfigScreen.CustomScreen;
 import com.eclipse.client.ConfigScreen.Drager;
 import com.eclipse.client.config.ConfigManager;
 import com.eclipse.client.config.ModConfig;
-import com.mojang.authlib.minecraft.client.MinecraftClient;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
-import net.fabricmc.fabric.api.client.renderer.v1.Renderer;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLevelEvents;
 import net.fabricmc.fabric.api.event.player.*;
-import net.fabricmc.fabric.api.resource.v1.reloader.ResourceReloaderKeys;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.toasts.SystemToast;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Interaction;
-import net.minecraft.world.entity.player.PlayerEquipment;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.scores.PlayerTeam;
+import net.minecraft.world.scores.Scoreboard;
+import net.minecraft.world.scores.Team;
 import org.lwjgl.glfw.GLFW;
+import org.w3c.dom.Text;
+
+import java.util.*;
+
+import static com.eclipse.client.PackagerClient.getUUID;
+import static com.eclipse.client.PackagerClient.refresh;
 
 public class EclipseClient implements ClientModInitializer {
-	public static boolean freecam = false;
+	public static boolean freecam = false, shouldSend = false;
+	public static int awaitGet = 0;
+	private static long lastChange = 0;
 	private static ModConfig config;
 	public static FreecamEntity freecamEntity;
 	private static String fps;
@@ -45,8 +52,13 @@ public class EclipseClient implements ClientModInitializer {
 			= KeyMapping.Category.register(
 			Identifier.fromNamespaceAndPath("eclipse", "controlys")
 	);
+	public static Set<UUID> loadedPlayersUUID = new HashSet<>();
 
-    // PVP SETTINGS
+	public static Set<Player> loadedPlayers = new HashSet<>();
+
+	public static Set<Player> eclPlayers = new HashSet<>();
+
+	// PVP SETTINGS
 	private void setPvp() {
 		Minecraft.getInstance().options.bobView().set(false);
 		Minecraft.getInstance().options.vignette().set(false);
@@ -158,9 +170,25 @@ public class EclipseClient implements ClientModInitializer {
 		);
 	}
 
+	// TOGGLE FOG
+	private void toggleFog() {
+		Minecraft mc = Minecraft.getInstance();
+		config.nofog = !config.nofog;
+		ConfigManager.save();
+		mc.getToastManager().addToast(
+				SystemToast.multiline(mc, SystemToast.SystemToastId.NARRATOR_TOGGLE, Component.nullToEmpty("Fog"), Component.nullToEmpty("is now " + config.nofog))
+		);
+	}
+
 	// ANTI-CHEAT
 	private static InteractionResult cancelIfFreecam() {
 		return freecam ? InteractionResult.FAIL : InteractionResult.PASS;
+	}
+
+	private void loadedEclipsePlayers() {
+		for (Player eclPlayer : loadedPlayers) {
+			eclPlayer.setCustomName(Component.nullToEmpty("Q"));
+		}
 	}
 
 	@Override
@@ -248,10 +276,11 @@ public class EclipseClient implements ClientModInitializer {
 			}
 
 			// NO FOG FIX
-			if (waitforit <= 10) {
+			if (waitforit < 10) {
 				waitforit++;
-			} else if (waitforit == 11) {
+			} else if (waitforit == 10) {
 				config.nofog = true;
+				waitforit++;
 			}
 
 			// FREECAM TOGGLE
@@ -277,6 +306,35 @@ public class EclipseClient implements ClientModInitializer {
 			// FPS SETTING
 			if (config.fps) {
 				fps = "FPS: " + Minecraft.getInstance().getFps();
+			}
+
+			// GET AWAIT
+			if (shouldSend && System.currentTimeMillis() - lastChange > 200) {
+				lastChange = System.currentTimeMillis();
+
+				getUUID(new ArrayList<>(loadedPlayersUUID));
+				shouldSend = false;
+			}
+
+			// ALWAYS SHOW-OFF
+			for (Player player : loadedPlayers) {
+				Scoreboard scoreboard = Minecraft.getInstance().level.getScoreboard();
+				PlayerTeam team = scoreboard.getPlayersTeam(player.getScoreboardName());
+
+				if (team != null) {
+					String eclipseTag = "§a[E] ";
+
+					Component current = team.getPlayerPrefix();
+					String currentString = current != null ? current.getString() : "";
+
+					if (!currentString.contains("[E]")) {
+						Component newPrefix = Component.literal(eclipseTag)
+								.append(current != null ? current : Component.empty());
+
+						team.setPlayerPrefix(newPrefix);
+					}
+				}
+
 			}
 
 			// DRAGER
@@ -379,9 +437,6 @@ public class EclipseClient implements ClientModInitializer {
 			// FREECAM MOVEMENT
 			if (freecam && freecamEntity != null) {
 
-				freecamEntity.setYRot(activePlayer.getYRot());
-				freecamEntity.setXRot(activePlayer.getXRot());
-
 				Vec3 forward = new Vec3(
 						-Math.sin(Math.toRadians(activePlayer.getYRot())),
 						0,
@@ -461,11 +516,32 @@ public class EclipseClient implements ClientModInitializer {
 		});
 
 		// UN FOG PROBLEM
-		ServerLevelEvents.LOAD.register((minecraftServer, serverLevel) -> {
-			if (!config.nofog) return;
-			config.nofog = false;
-			waitforit = 0;
+		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
+			if (config.nofog) {
+				config.nofog = false;
+				waitforit = 0;
+			}
 		});
+
+		// ENTITY TICKER
+		ClientEntityEvents.ENTITY_LOAD.register((entity, world) -> {
+			if (entity instanceof Player player && !(player instanceof LocalPlayer)) {
+
+				loadedPlayers.add(player);
+				loadedPlayersUUID.add(player.getUUID());
+
+				// MACH DAS MIT AWAIT GET
+			}
+		});
+
+		// ENTITY DIS-TICKER
+		ClientEntityEvents.ENTITY_UNLOAD.register((entity, world) -> {
+			if (entity instanceof Player player && !(player instanceof LocalPlayer)) {
+				loadedPlayersUUID.remove(player.getUUID());
+				loadedPlayers.remove(player);
+			}
+		});
+
 
 
 		// COMMANDS
@@ -475,11 +551,7 @@ public class EclipseClient implements ClientModInitializer {
 					// TOGGLE FOG
 					.then(ClientCommands.literal("fog")
 							.executes(context -> {
-								config.nofog = !config.nofog;
-								ConfigManager.save();
-								Minecraft.getInstance().getToastManager().addToast(
-										SystemToast.multiline(Minecraft.getInstance(), SystemToast.SystemToastId.NARRATOR_TOGGLE, Component.nullToEmpty("Nofog"), Component.nullToEmpty("is now " + config.nofog))
-								);
+								toggleFog();
 								return 1;
 							})
 					)
@@ -533,13 +605,6 @@ public class EclipseClient implements ClientModInitializer {
 					})
 			);
 
-			// TEST COMMAND
-			dispatcher.register(ClientCommands.literal("ttt")
-					.executes(context -> {
-						return 1;
-					})
-			);
-
 			// TOGGLE FREECAM
 			dispatcher.register(ClientCommands.literal("freecam")
 					.then(ClientCommands.literal("toggle")
@@ -563,6 +628,15 @@ public class EclipseClient implements ClientModInitializer {
 										return 1;
 									})
 							)
+					)
+
+					// CHANGE SPEED
+					.then(ClientCommands.literal("smoothie")
+							.executes(context -> {
+
+								ConfigManager.save();
+								return 1;
+							})
 					)
 
 			);

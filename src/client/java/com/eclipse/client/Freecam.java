@@ -4,8 +4,6 @@ import com.eclipse.client.config.ConfigManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Interaction;
 
 import static com.eclipse.client.EclipseClient.freecam;
 import static com.eclipse.client.EclipseClient.freecamEntity;
