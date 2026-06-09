@@ -134,6 +134,10 @@ The timer adds a stopwatch (*brillant*) in the actionbar.
 - [x] You can now see yourself in Freecam
 - [x] Freecam Movement was made much better
 
+## Big Step UPDATE 1.1.6
+- [x] Now you can see players with my mod with an EP before name
+- [x] fog fix
+
 
 
 In case of you having any brilliant ideas, please submit them here:
