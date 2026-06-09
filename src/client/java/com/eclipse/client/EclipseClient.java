@@ -531,6 +531,8 @@ public class EclipseClient implements ClientModInitializer {
 				loadedPlayersUUID.add(player.getUUID());
 
 				// MACH DAS MIT AWAIT GET
+				awaitGet = 0;
+				shouldSend = true;
 			}
 		});
 
