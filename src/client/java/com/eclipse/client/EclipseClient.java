@@ -1,7 +1,6 @@
 // This is copywrited. Don't just copy code. Let the code enspire you.
 // Copywrite (c) 2026
 
-
 package com.eclipse.client;
 
 import com.eclipse.client.ConfigScreen.CustomScreen;
@@ -338,7 +337,7 @@ public class EclipseClient implements ClientModInitializer {
 			}
 
 			// REF AWAIT
-			if (System.currentTimeMillis() - lastChangeRef > 200) {
+			if (System.currentTimeMillis() - lastChangeRef > 60000) {
 				lastChangeRef = System.currentTimeMillis();
 
 				refresh(activePlayer.getUUID());
@@ -558,33 +557,6 @@ public class EclipseClient implements ClientModInitializer {
 
 		// COMMANDS
 		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
-			// DEBUGGER
-			dispatcher.register(ClientCommands.literal("refreshPOST")
-					.executes(context -> {
-						refresh(Minecraft.getInstance().player.getUUID());
-						return 1;
-					})
-			);
-
-			dispatcher.register(ClientCommands.literal("getPOST")
-					.executes(context -> {
-						getUUID(new ArrayList<>(loadedPlayersUUID));
-						loadedPlayers.clear();
-						loadedPlayersUUID.clear();
-
-						return 1;
-					})
-			);
-
-			dispatcher.register(ClientCommands.literal("displayLIST")
-					.executes(context -> {
-						for (Player loadedPlayer : loadedPlayers) {
-							Minecraft.getInstance().player.sendSystemMessage(loadedPlayer.getName());
-						}
-						return 1;
-					})
-			);
-
 			// TOGGLE
 			dispatcher.register(ClientCommands.literal("toggle")
 
