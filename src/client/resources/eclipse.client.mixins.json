@@ -10,7 +10,8 @@
 		"PlayerMixin",
 		"MouseHandlerMixin",
 		"NoCrouchMixin",
-		"NoJumpMixin"
+		"NoJumpMixin",
+		"EntityRendererMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

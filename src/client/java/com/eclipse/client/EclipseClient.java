@@ -1,3 +1,7 @@
+// This is copywrited. Don't just copy code. Let the code enspire you.
+// Copywrite (c) 2026
+
+
 package com.eclipse.client;
 
 import com.eclipse.client.ConfigScreen.CustomScreen;
@@ -27,12 +31,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
-import net.minecraft.world.scores.Team;
 import org.lwjgl.glfw.GLFW;
-import org.w3c.dom.Text;
 
 import java.util.*;
 
@@ -42,7 +45,7 @@ import static com.eclipse.client.PackagerClient.refresh;
 public class EclipseClient implements ClientModInitializer {
 	public static boolean freecam = false, shouldSend = false;
 	public static int awaitGet = 0;
-	private static long lastChange = 0;
+	private static long lastChange = 0, lastChangeRef = 0;
 	private static ModConfig config;
 	public static FreecamEntity freecamEntity;
 	private static String fps;
@@ -67,6 +70,24 @@ public class EclipseClient implements ClientModInitializer {
 		Minecraft.getInstance().options.fovEffectScale().set(0d);
 		Minecraft.getInstance().options.entityShadows().set(false);
 		Minecraft.getInstance().options.save();
+	}
+
+	// ECLIPSE MARKER
+	private void applyPrefix(Player player) {
+		Scoreboard scoreboard = Minecraft.getInstance().level.getScoreboard();
+		PlayerTeam team = scoreboard.getPlayersTeam(player.getScoreboardName());
+
+		if (team == null) return;
+
+		Component current = team.getPlayerPrefix();
+		String currentString = current != null ? current.getString() : "";
+
+		if (currentString.contains("[E]")) return;
+
+		Component newPrefix = Component.literal("§a[E] ")
+				.append(current != null ? current : Component.empty());
+
+		team.setPlayerPrefix(newPrefix);
 	}
 
 	// FPS TOGGLE
@@ -316,25 +337,11 @@ public class EclipseClient implements ClientModInitializer {
 				shouldSend = false;
 			}
 
-			// ALWAYS SHOW-OFF
-			for (Player player : loadedPlayers) {
-				Scoreboard scoreboard = Minecraft.getInstance().level.getScoreboard();
-				PlayerTeam team = scoreboard.getPlayersTeam(player.getScoreboardName());
+			// REF AWAIT
+			if (System.currentTimeMillis() - lastChangeRef > 200) {
+				lastChangeRef = System.currentTimeMillis();
 
-				if (team != null) {
-					String eclipseTag = "§a[E] ";
-
-					Component current = team.getPlayerPrefix();
-					String currentString = current != null ? current.getString() : "";
-
-					if (!currentString.contains("[E]")) {
-						Component newPrefix = Component.literal(eclipseTag)
-								.append(current != null ? current : Component.empty());
-
-						team.setPlayerPrefix(newPrefix);
-					}
-				}
-
+				refresh(activePlayer.getUUID());
 			}
 
 			// DRAGER
@@ -527,12 +534,13 @@ public class EclipseClient implements ClientModInitializer {
 		ClientEntityEvents.ENTITY_LOAD.register((entity, world) -> {
 			if (entity instanceof Player player && !(player instanceof LocalPlayer)) {
 
-				loadedPlayers.add(player);
 				loadedPlayersUUID.add(player.getUUID());
+				loadedPlayers.add(player);
 
-				// MACH DAS MIT AWAIT GET
 				awaitGet = 0;
 				shouldSend = true;
+
+				System.out.println("Eclipse: " + player.getName().getString() + " joined.");
 			}
 		});
 
@@ -541,6 +549,8 @@ public class EclipseClient implements ClientModInitializer {
 			if (entity instanceof Player player && !(player instanceof LocalPlayer)) {
 				loadedPlayersUUID.remove(player.getUUID());
 				loadedPlayers.remove(player);
+
+				System.out.println(player.getName() + " left list");
 			}
 		});
 
@@ -548,6 +558,34 @@ public class EclipseClient implements ClientModInitializer {
 
 		// COMMANDS
 		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
+			// DEBUGGER
+			dispatcher.register(ClientCommands.literal("refreshPOST")
+					.executes(context -> {
+						refresh(Minecraft.getInstance().player.getUUID());
+						return 1;
+					})
+			);
+
+			dispatcher.register(ClientCommands.literal("getPOST")
+					.executes(context -> {
+						getUUID(new ArrayList<>(loadedPlayersUUID));
+						loadedPlayers.clear();
+						loadedPlayersUUID.clear();
+
+						return 1;
+					})
+			);
+
+			dispatcher.register(ClientCommands.literal("displayLIST")
+					.executes(context -> {
+						for (Player loadedPlayer : loadedPlayers) {
+							Minecraft.getInstance().player.sendSystemMessage(loadedPlayer.getName());
+						}
+						return 1;
+					})
+			);
+
+			// TOGGLE
 			dispatcher.register(ClientCommands.literal("toggle")
 
 					// TOGGLE FOG

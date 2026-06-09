@@ -8,7 +8,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 public class PackagerClient {
@@ -34,7 +33,7 @@ public class PackagerClient {
                     .build();
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            System.out.println("GET: " + response.body());
+
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -54,7 +53,6 @@ public class PackagerClient {
                     .build();
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            System.out.println("REFRESH: " + response.body());
 
         } catch (Exception e) {
             e.printStackTrace();
