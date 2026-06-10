@@ -10,9 +10,10 @@ This _Clientside_ Mod is meant as a collection of client-side utilities. This mo
 >- **/toggle sprintvisual** toggles the DISPLAY of autosprint
 >- **/toggle fog** toggles nofog
 >- Config GUI open via **K**
+>- Auto Marker for players using this mod (with different Ranks --> upcoming)
 
 ### PVP MODE
-the **PVP MODE** sets *various* Minecraft options to the best values for pvp.
+The **PVP MODE** sets *various* Minecraft options to the best values for pvp.
 
 > - no bob (no camera shake while walking)
 > - no vignette (no black borders)
@@ -22,7 +23,7 @@ the **PVP MODE** sets *various* Minecraft options to the best values for pvp.
 > - no entity shadows (disables the entity shadows, what can cause performance impacts)
 
 ### Timer
-The timer adds a stopwatch (*brillant*) in the actionbar.
+The timer adds a stopwatch which is managable via UI or the List of commands below.
 > - **/timer toggle** toggles timer
 > - **/timer start** starts timer
 > - **/timer stop** stops timer
@@ -97,7 +98,7 @@ The timer adds a stopwatch (*brillant*) in the actionbar.
 - [x] better autosprint
 - [x] better freecam speed control
 
-## OLDER Better UPDATE 1.1.3
+## Better UPDATE 1.1.3 (for Older Versions)
 - [x] better code
 - [x] better timer logic
 - [x] config gui
@@ -117,7 +118,7 @@ The timer adds a stopwatch (*brillant*) in the actionbar.
 - [x] removed losing Focus while dragging
 - [x] added autosprint to HUD
 
-## OLDER Better UPDATE 1.1.4
+## Better UPDATE 1.1.4 (for Older Versions)
 - [x] No Blur in move mode
 - [x] made only 1 move mode
 - [x] added grid to moving
@@ -134,10 +135,17 @@ The timer adds a stopwatch (*brillant*) in the actionbar.
 - [x] You can now see yourself in Freecam
 - [x] Freecam Movement was made much better
 
-## Big Step UPDATE 1.1.6
+## Big Step UPDATE 1.1.7
 - [x] Now you can see players with my mod with an EP before name
 - [x] fog fix
 
+## Big Step (AGAIN) UPDATE 1.1.8
+- [x] Added multi Prefix Support
+- [x] better support at autosprint
+
+## Big Step (AGAIN) UPDATE 1.1.8
+- [x] Added multi Prefix Support
+- [x] better support at autosprint
 
 
 In case of you having any brilliant ideas, please submit them here:
