@@ -30,6 +30,9 @@ The timer adds a stopwatch which is managable via UI or the List of commands bel
 > - **/timer restart** restarts the timer
 > - **/timer togglemode** switches between analog and digital timer mode
 
+In case of you having any brilliant ideas, please submit them here:
+https://docs.google.com/forms/d/e/1FAIpQLSdC_3SM02lKfVTV1IyXYU7uZB4V9yEyLHUcJbVV_DdIoP3lsA/viewform?usp=publish-editor
+
 ## Basic UPDATE 1.0.0
 - [x] Auto Sprinting
 - [x] Fps counter
@@ -142,13 +145,5 @@ The timer adds a stopwatch which is managable via UI or the List of commands bel
 ## Big Step (AGAIN) UPDATE 1.1.8
 - [x] Added multi Prefix Support
 - [x] better support at autosprint
-
-## Big Step (AGAIN) UPDATE 1.1.8
-- [x] Added multi Prefix Support
-- [x] better support at autosprint
-
-
-In case of you having any brilliant ideas, please submit them here:
-https://docs.google.com/forms/d/e/1FAIpQLSdC_3SM02lKfVTV1IyXYU7uZB4V9yEyLHUcJbVV_DdIoP3lsA/viewform?usp=publish-editor
 
 **The GitHub repository will be on a newer status then Modrinth's page**
