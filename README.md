@@ -12,8 +12,8 @@ This _Clientside_ Mod is meant as a collection of client-side utilities. This mo
 >- Config GUI open via **K**
 >- Auto Marker for players using this mod (with different Ranks --> upcoming), more info below
 ## Hotkeys:
->- **F6** Toggle Fps
->- **F4** Toggle Freecam
+>- **F6** Toggles Fps
+>- **F4** Toggles Freecam
 >- **Left Control** Toggle Sprint
 >- **K** Toggles Config Menu
 >- **J** Toggles Gamma
@@ -38,7 +38,7 @@ The Timer adds a stopwatch which is manageable via UI or the List of commands be
 > - **/timer togglemode** switches between analog and digital timer mode
 
 ### Freecam
-This Feature adds a Freecam to fly around like in Creative Mode while the Player doesn't move.
+This Feature adds a Freecam to fly around like in Creative Mode while the Player does not move.
 >- **/freecam toggle** toggles freecam
 >- **/freecam speed** controls the speed of the Freecam
 >- **/freecam smoothie** controls the way the Freecam floats after you release the key
@@ -118,7 +118,7 @@ https://docs.google.com/forms/d/e/1FAIpQLSdC_3SM02lKfVTV1IyXYU7uZB4V9yEyLHUcJbVV
 - [x] Better autosprint
 - [x] Better freecam speed control
 
-## Better UPDATE 1.1.3 (for older Versions)
+## Better UPDATE 1.1.3 (for older Version)
 - [x] Better code
 - [x] Better timer logic
 - [x] Config gui
@@ -138,7 +138,7 @@ https://docs.google.com/forms/d/e/1FAIpQLSdC_3SM02lKfVTV1IyXYU7uZB4V9yEyLHUcJbVV
 - [x] Removed losing Focus while dragging
 - [x] Added autosprint to HUD
 
-## Better UPDATE 1.1.4 (for older Versions)
+## Better UPDATE 1.1.4 (for older Version)
 - [x] No Blur in move mode
 - [x] Made only 1 move mode
 - [x] Added grid to moving
@@ -162,6 +162,11 @@ https://docs.google.com/forms/d/e/1FAIpQLSdC_3SM02lKfVTV1IyXYU7uZB4V9yEyLHUcJbVV
 ## Big Step (AGAIN) UPDATE 1.1.8
 - [x] Added multi Prefix Support
 - [x] Better support at autosprint
+
+## Mixed UPDATE 1.1.9
+- [x] Better Prefix
+- [x] Prefix now visible when playerlist is shown
+- [x] Config GUI was optimized
 
 ## Upcoming
 - [ ] Different Ranks for Markers before name
