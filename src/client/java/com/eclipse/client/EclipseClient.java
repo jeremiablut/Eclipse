@@ -32,8 +32,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.scores.PlayerTeam;
-import net.minecraft.world.scores.Scoreboard;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.*;
@@ -49,7 +47,7 @@ public class EclipseClient implements ClientModInitializer {
 	public static FreecamEntity freecamEntity;
 	private static String fps;
 	private int waitforit = 0;
-	private static int selected = 0;
+	public static int selected = 0;
     private final KeyMapping.Category CATEGORY
 			= KeyMapping.Category.register(
 			Identifier.fromNamespaceAndPath("eclipse", "controlys")
@@ -58,7 +56,7 @@ public class EclipseClient implements ClientModInitializer {
 
 	public static Set<Player> loadedPlayers = new HashSet<>();
 
-	public static Set<Player> eclPlayers = new HashSet<>();
+	public static Map<UUID, String> eclipsePlayerPrefixes = new HashMap<>();
 
 	// PVP SETTINGS
 	private void setPvp() {
@@ -69,24 +67,6 @@ public class EclipseClient implements ClientModInitializer {
 		Minecraft.getInstance().options.fovEffectScale().set(0d);
 		Minecraft.getInstance().options.entityShadows().set(false);
 		Minecraft.getInstance().options.save();
-	}
-
-	// ECLIPSE MARKER
-	private void applyPrefix(Player player) {
-		Scoreboard scoreboard = Minecraft.getInstance().level.getScoreboard();
-		PlayerTeam team = scoreboard.getPlayersTeam(player.getScoreboardName());
-
-		if (team == null) return;
-
-		Component current = team.getPlayerPrefix();
-		String currentString = current != null ? current.getString() : "";
-
-		if (currentString.contains("[E]")) return;
-
-		Component newPrefix = Component.literal("§a[E] ")
-				.append(current != null ? current : Component.empty());
-
-		team.setPlayerPrefix(newPrefix);
 	}
 
 	// FPS TOGGLE
@@ -180,6 +160,11 @@ public class EclipseClient implements ClientModInitializer {
 		return config.gamma;
 	}
 
+	// RETURN SPRINT STATE
+	public static boolean getSprint() {
+		return config.sprint;
+	}
+
 	// TOGGLE GAMMA
 	public static void toggleGamma() {
 		Minecraft mc = Minecraft.getInstance();
@@ -205,12 +190,6 @@ public class EclipseClient implements ClientModInitializer {
 		return freecam ? InteractionResult.FAIL : InteractionResult.PASS;
 	}
 
-	private void loadedEclipsePlayers() {
-		for (Player eclPlayer : loadedPlayers) {
-			eclPlayer.setCustomName(Component.nullToEmpty("Q"));
-		}
-	}
-
 	@Override
 	public void onInitializeClient() {
 		// CONFIG INITIALIZER
@@ -222,6 +201,12 @@ public class EclipseClient implements ClientModInitializer {
 			config = new ModConfig();
 			ConfigManager.save();
 		}
+
+		Dragger fpsDragger = new Dragger(config.fpsX, config.fpsY, 1);
+
+		Dragger timerDragger = new Dragger(config.timerX, config.timerY, 2);
+
+		Dragger sprintDragger = new Dragger(config.sprintX, config.sprintY, 3);
 
 		// HUD INITIALIZER
 		HudElementRegistry.attachElementBefore(
@@ -321,7 +306,7 @@ public class EclipseClient implements ClientModInitializer {
 			}
 
 			// TOGGLE SPRINT
-			if (config.sprint && !activePlayer.isSprinting() && config.autoSprint) activePlayer.setSprinting(true);
+			if (config.sprint && config.autoSprint && !activePlayer.isInLiquid()) activePlayer.setSprinting(true);
 
 			// FPS SETTING
 			if (config.fps) {
@@ -337,89 +322,29 @@ public class EclipseClient implements ClientModInitializer {
 			}
 
 			// REF AWAIT
-			if (System.currentTimeMillis() - lastChangeRef > 60000) {
+			if (System.currentTimeMillis() - lastChangeRef > 15000) {
 				lastChangeRef = System.currentTimeMillis();
 
 				refresh(activePlayer.getUUID());
 			}
 
+
+
 			// DRAGER
 			if (minecraft.screen instanceof Drager) {
 				if (GLFW.glfwGetMouseButton(window.handle(), 0) == GLFW.GLFW_PRESS) {
-					// FPS DRAGGER
-					double mouseX = minecraft.mouseHandler.xpos()
-							* minecraft.getWindow().getGuiScaledWidth()
-							/ minecraft.getWindow().getScreenWidth();
+					fpsDragger.refresh("FPS: " + minecraft.getFps());
+					config.fpsX = fpsDragger.getX();
+					config.fpsY = fpsDragger.getY();
 
-					double mouseY = minecraft.mouseHandler.ypos()
-							* minecraft.getWindow().getGuiScaledHeight()
-							/ minecraft.getWindow().getScreenHeight();
+					timerDragger.refresh(config.timer);
+					config.timerX = timerDragger.getX();
+					config.timerY = timerDragger.getY();
 
-					int xf = config.fpsX;
-					int yf = config.fpsY;
-
-					fps = "FPS: " + Minecraft.getInstance().getFps();
-					int widthf = minecraft.font.width(fps);
-					int heightf = minecraft.font.lineHeight;
-
-					boolean hoveringfps =
-							mouseX >= xf &&
-									mouseX <= xf + widthf &&
-									mouseY >= yf &&
-									mouseY <= yf + heightf;
-
-					if (hoveringfps && selected == 0) {
-						selected = 1;
-					}
-					if (selected == 1) {
-						config.fpsX = ((int) (mouseX - widthf / 2) / 10) * 10;
-						config.fpsY = ((int) (mouseY + heightf / 2) / 10) * 10;
-						ConfigManager.save();
-					}
-
-					// TIMER DRAGGER
-					int xt = config.timerX;
-					int yt = config.timerY;
-
-					int widtht = minecraft.font.width(config.timer);
-					int heightt = minecraft.font.lineHeight;
-
-					boolean hoveringtimer =
-							mouseX >= xt &&
-									mouseX <= xt + widtht &&
-									mouseY >= yt &&
-									mouseY <= yt + heightt;
-					if (hoveringtimer && selected == 0) {
-						selected = 2;
-					}
-					if (selected == 2) {
-						config.timerX = ((int) (mouseX - widtht / 2) / 10) * 10;
-						config.timerY = ((int) (mouseY + heightt / 2) / 10) * 10;
-						ConfigManager.save();
-					}
-
-					// SPRINTING DRAGGER
-					int xs = config.sprintX;
-					int ys = config.sprintY;
-
-					int widths = minecraft.font.width(config.sprint ? "SPRINTING" : "WALKING");
-					int heights = minecraft.font.lineHeight;
-
-					boolean hoveringsprint =
-							mouseX >= xs &&
-									mouseX <= xs + widths &&
-									mouseY >= ys &&
-									mouseY <= ys + heights;
-					if (hoveringsprint && selected == 0) {
-						selected = 3;
-					}
-					if (selected == 3) {
-						config.sprintX = ((int) (mouseX - widths / 2) / 10) * 10;
-						config.sprintY = ((int) (mouseY + heights / 2) / 10) * 10;
-						ConfigManager.save();
-					}
-				}
-				else if (selected != 0){
+					sprintDragger.refresh(config.sprint ? "SPRINTING" : "WALKING");
+					config.sprintX = sprintDragger.getX();
+					config.sprintY = sprintDragger.getY();
+				} else {
 					selected = 0;
 				}
 			}
@@ -538,8 +463,6 @@ public class EclipseClient implements ClientModInitializer {
 
 				awaitGet = 0;
 				shouldSend = true;
-
-				System.out.println("Eclipse: " + player.getName().getString() + " joined.");
 			}
 		});
 
@@ -548,8 +471,6 @@ public class EclipseClient implements ClientModInitializer {
 			if (entity instanceof Player player && !(player instanceof LocalPlayer)) {
 				loadedPlayersUUID.remove(player.getUUID());
 				loadedPlayers.remove(player);
-
-				System.out.println(player.getName() + " left list");
 			}
 		});
 

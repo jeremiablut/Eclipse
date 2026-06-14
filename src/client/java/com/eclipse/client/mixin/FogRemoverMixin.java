@@ -1,7 +1,9 @@
 package com.eclipse.client.mixin;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.fog.FogData;
 import net.minecraft.client.renderer.fog.FogRenderer;
+import net.minecraft.world.effect.MobEffects;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -14,7 +16,7 @@ public class FogRemoverMixin {
 
     @Inject(method = "setupFog", at = @At("RETURN"), cancellable = true)
     private void setupFog(CallbackInfoReturnable<FogData> cir) {
-        if (!config.nofog) return;
+        if (!config.nofog || Minecraft.getInstance().player.hasEffect(MobEffects.BLINDNESS)) return;
         FogData fog = cir.getReturnValue();
 
         fog.renderDistanceStart = 999999f;
