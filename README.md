@@ -168,6 +168,11 @@ https://docs.google.com/forms/d/e/1FAIpQLSdC_3SM02lKfVTV1IyXYU7uZB4V9yEyLHUcJbVV
 - [x] Prefix now visible when playerlist is shown
 - [x] Config GUI was optimized
 
+## Featuring UPDATE 1.2.0
+- [x] CPS Display added
+- [x] Freecam Key Binds now configurable
+- [x] Better Performance
+
 ## Upcoming
 - [ ] Different Ranks for Markers before name
 
