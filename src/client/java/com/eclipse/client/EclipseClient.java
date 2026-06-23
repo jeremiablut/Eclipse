@@ -1,4 +1,4 @@
-// This is copywrited. Don't just copy code. Let the code enspire you.
+// This is copyrighted. Don't just copy code. Let the code enspire you.
 // Copywrite (c) 2026
 
 package com.eclipse.client;
@@ -25,6 +25,8 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.toasts.SystemToast;
+import net.minecraft.client.input.InputWithModifiers;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -34,6 +36,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import org.lwjgl.glfw.GLFW;
 
+import javax.swing.*;
 import java.util.*;
 
 import static com.eclipse.client.PackagerClient.getUUID;
@@ -45,9 +48,11 @@ public class EclipseClient implements ClientModInitializer {
 	private static long lastChange = 0, lastChangeRef = 0;
 	private static ModConfig config;
 	public static FreecamEntity freecamEntity;
-	private static String fps;
+	private static String fps, cps = "0|0";
 	private int waitforit = 0;
 	public static int selected = 0;
+	public static CPSCounter leftCPS = new CPSCounter();
+	public static CPSCounter rightCPS = new CPSCounter();
     private final KeyMapping.Category CATEGORY
 			= KeyMapping.Category.register(
 			Identifier.fromNamespaceAndPath("eclipse", "controlys")
@@ -208,6 +213,8 @@ public class EclipseClient implements ClientModInitializer {
 
 		Dragger sprintDragger = new Dragger(config.sprintX, config.sprintY, 3);
 
+		Dragger cpsDragger = new Dragger(config.cpsX, config.cpsY, 4);
+
 		// HUD INITIALIZER
 		HudElementRegistry.attachElementBefore(
 				VanillaHudElements.CHAT,
@@ -222,7 +229,8 @@ public class EclipseClient implements ClientModInitializer {
 						InputConstants.Type.KEYSYM,
 						GLFW.GLFW_KEY_LEFT_CONTROL,
 						CATEGORY
-				));
+				)
+		);
 
 		KeyMapping tf = KeyMappingHelper.registerKeyMapping(
 				new KeyMapping(
@@ -230,7 +238,8 @@ public class EclipseClient implements ClientModInitializer {
 						InputConstants.Type.KEYSYM,
 						GLFW.GLFW_KEY_F6,
 						CATEGORY
-				));
+				)
+		);
 
 		KeyMapping freec = KeyMappingHelper.registerKeyMapping(
 				new KeyMapping(
@@ -238,7 +247,8 @@ public class EclipseClient implements ClientModInitializer {
 						InputConstants.Type.KEYSYM,
 						GLFW.GLFW_KEY_F4,
 						CATEGORY
-				));
+				)
+		);
 
 		KeyMapping screenKey = KeyMappingHelper.registerKeyMapping(
 				new KeyMapping(
@@ -254,7 +264,62 @@ public class EclipseClient implements ClientModInitializer {
 						InputConstants.Type.KEYSYM,
 						GLFW.GLFW_KEY_J,
 						CATEGORY
-				));
+				)
+		);
+
+		KeyMapping wFreecam = KeyMappingHelper.registerKeyMapping(
+				new KeyMapping(
+						"Freecam Forward",
+						InputConstants.Type.KEYSYM,
+						GLFW.GLFW_KEY_W,
+						CATEGORY
+				)
+		);
+
+		KeyMapping aFreecam = KeyMappingHelper.registerKeyMapping(
+				new KeyMapping(
+						"Freecam Left",
+						InputConstants.Type.KEYSYM,
+						GLFW.GLFW_KEY_A,
+						CATEGORY
+				)
+		);
+
+		KeyMapping sFreecam = KeyMappingHelper.registerKeyMapping(
+				new KeyMapping(
+						"Freecam Backward",
+						InputConstants.Type.KEYSYM,
+						GLFW.GLFW_KEY_S,
+						CATEGORY
+				)
+		);
+
+		KeyMapping dFreecam = KeyMappingHelper.registerKeyMapping(
+				new KeyMapping(
+						"Freecam Right",
+						InputConstants.Type.KEYSYM,
+						GLFW.GLFW_KEY_D,
+						CATEGORY
+				)
+		);
+
+		KeyMapping upFreecam = KeyMappingHelper.registerKeyMapping(
+				new KeyMapping(
+						"Freecam Up",
+						InputConstants.Type.KEYSYM,
+						GLFW.GLFW_KEY_SPACE,
+						CATEGORY
+				)
+		);
+
+		KeyMapping downFreecam = KeyMappingHelper.registerKeyMapping(
+				new KeyMapping(
+						"Freecam Down",
+						InputConstants.Type.KEYSYM,
+						GLFW.GLFW_KEY_LEFT_SHIFT,
+						CATEGORY
+				)
+		);
 
 		// TICK LOGIC
 		ClientTickEvents.END_CLIENT_TICK.register((minecraft -> {
@@ -328,7 +393,7 @@ public class EclipseClient implements ClientModInitializer {
 				refresh(activePlayer.getUUID());
 			}
 
-
+			if (config.cps) {cps = leftCPS.getCPS() + " | " + rightCPS.getCPS();}
 
 			// DRAGER
 			if (minecraft.screen instanceof Drager) {
@@ -344,6 +409,10 @@ public class EclipseClient implements ClientModInitializer {
 					sprintDragger.refresh(config.sprint ? "SPRINTING" : "WALKING");
 					config.sprintX = sprintDragger.getX();
 					config.sprintY = sprintDragger.getY();
+
+					cpsDragger.refresh(cps);
+					config.cpsX = cpsDragger.getX();
+					config.cpsY = cpsDragger.getY();
 				} else {
 					selected = 0;
 				}
@@ -388,24 +457,27 @@ public class EclipseClient implements ClientModInitializer {
 
 				Vec3 motion = Vec3.ZERO;
 
-				if (InputConstants.isKeyDown(window, GLFW.GLFW_KEY_W)) {
+				if (wFreecam.isDown()) {
 					motion = motion.add(forward);
 				}
-				if (InputConstants.isKeyDown(window, GLFW.GLFW_KEY_S)) {
-					motion = motion.subtract(forward);
-				}
-				if (InputConstants.isKeyDown(window, GLFW.GLFW_KEY_A)) {
+
+				if (aFreecam.isDown()) {
 					motion = motion.subtract(right);
 				}
-				if (InputConstants.isKeyDown(window, GLFW.GLFW_KEY_D)) {
+
+				if (sFreecam.isDown()) {
+					motion = motion.subtract(forward);
+				}
+
+				if (dFreecam.isDown()) {
 					motion = motion.add(right);
 				}
 
 				// vertical extra
-				if (InputConstants.isKeyDown(window, GLFW.GLFW_KEY_SPACE)) {
+				if (upFreecam.isDown()) {
 					motion = motion.add(0, 1, 0);
 				}
-				if (InputConstants.isKeyDown(window, GLFW.GLFW_KEY_LEFT_SHIFT)) {
+				if (downFreecam.isDown()) {
 					motion = motion.add(0, -1, 0);
 				}
 
@@ -662,6 +734,17 @@ public class EclipseClient implements ClientModInitializer {
 					config.sprint ? "SPRINTING" : "WALKING",
 					config.sprintX,
 					config.sprintY,
+					0xFFFFFFFF
+			);
+		}
+
+		// SPRINT DISPLAY
+		if (config.cps) {
+			graphics.text(
+					Minecraft.getInstance().font,
+					cps,
+					config.cpsX,
+					config.cpsY,
 					0xFFFFFFFF
 			);
 		}

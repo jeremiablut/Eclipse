@@ -13,7 +13,8 @@
 		"NoJumpMixin",
 		"EntityRendererMixin",
 		"EntityMixin",
-		"TabListMixin"
+		"TabListMixin",
+		"CPSMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
