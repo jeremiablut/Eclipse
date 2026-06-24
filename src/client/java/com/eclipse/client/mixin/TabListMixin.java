@@ -1,6 +1,9 @@
 package com.eclipse.client.mixin;
 
+import com.eclipse.client.EclipseClient;
 import com.mojang.authlib.GameProfile;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.PlayerTabOverlay;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -8,6 +11,7 @@ import net.minecraft.client.multiplayer.PlayerInfo;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.UUID;
@@ -36,7 +40,19 @@ public class TabListMixin {
 
         cir.setReturnValue(newName);
     }
+
+    @Inject(method = "extractPingIcon", at = @At("HEAD"), cancellable = true)
+    private void replacePing(GuiGraphicsExtractor graphics, int slotWidth, int xo, int yo, PlayerInfo info, CallbackInfo ci) {
+        if (EclipseClient.getPingOthers()) {
+            Minecraft mc = Minecraft.getInstance();
+
+            String text = info.getLatency() + "ms";
+
+            int x = xo + slotWidth - mc.font.width(text) - 4;
+
+            graphics.text(mc.font, Component.literal(text).withColor(info.getLatency() < 50 ? 0x00FF00 : info.getLatency() < 200 ? 0xFFA500 : 0xFF0000), x, yo, -1);
+
+            ci.cancel();
+        }
+    }
 }
-
-
-

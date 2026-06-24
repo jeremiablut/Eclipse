@@ -19,7 +19,7 @@ public class Drager extends Screen {
 
         int buttonWidth = 20;
         int buttonHeight = 20;
-        int x = this.width / 2 - buttonWidth / 2;
+        int x = this.width / 5 * 2;
 
         this.addRenderableWidget(
                 Button.builder(Component.literal("⟳"), (btn) -> {

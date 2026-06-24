@@ -7,7 +7,6 @@ import com.eclipse.client.ConfigScreen.CustomScreen;
 import com.eclipse.client.ConfigScreen.Drager;
 import com.eclipse.client.config.ConfigManager;
 import com.eclipse.client.config.ModConfig;
-import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import net.fabricmc.api.ClientModInitializer;
@@ -15,7 +14,6 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallba
 import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
@@ -25,15 +23,12 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.toasts.SystemToast;
-import net.minecraft.client.input.InputWithModifiers;
-import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 
-import net.minecraft.world.phys.Vec3;
 import org.lwjgl.glfw.GLFW;
 
 import javax.swing.*;
@@ -48,12 +43,14 @@ public class EclipseClient implements ClientModInitializer {
 	private static long lastChange = 0, lastChangeRef = 0;
 	private static ModConfig config;
 	public static FreecamEntity freecamEntity;
-	private static String fps, cps = "0|0";
+	private static String fps, cps = "0 | 0", ping = "";
 	private int waitforit = 0;
+    private static int pingint;
+	private FreecamController freecamController;
 	public static int selected = 0;
 	public static CPSCounter leftCPS = new CPSCounter();
 	public static CPSCounter rightCPS = new CPSCounter();
-    private final KeyMapping.Category CATEGORY
+    public static final KeyMapping.Category CATEGORY
 			= KeyMapping.Category.register(
 			Identifier.fromNamespaceAndPath("eclipse", "controlys")
 	);
@@ -79,9 +76,6 @@ public class EclipseClient implements ClientModInitializer {
 		Minecraft mc = Minecraft.getInstance();
 		config.fps = !config.fps;
 		ConfigManager.save();
-		mc.getToastManager().addToast(
-				SystemToast.multiline(mc, SystemToast.SystemToastId.NARRATOR_TOGGLE, Component.nullToEmpty("FPS"), Component.nullToEmpty("is now " + config.fps))
-		);
 	}
 
 	// TIMER GEN (DON'T LOOK IN HERE)
@@ -110,9 +104,6 @@ public class EclipseClient implements ClientModInitializer {
 		Minecraft mc = Minecraft.getInstance();
 		config.status = action;
 		ConfigManager.save();
-		mc.getToastManager().addToast(
-				SystemToast.multiline(mc, SystemToast.SystemToastId.NARRATOR_TOGGLE, Component.nullToEmpty("Timer"), Component.nullToEmpty("was " + action))
-		);
 	}
 
 	// TIMER TOGGLE
@@ -120,9 +111,6 @@ public class EclipseClient implements ClientModInitializer {
 		Minecraft mc = Minecraft.getInstance();
 		config.shown = !config.shown;
 		ConfigManager.save();
-		mc.getToastManager().addToast(
-				SystemToast.multiline(mc, SystemToast.SystemToastId.NARRATOR_TOGGLE, Component.nullToEmpty("Timer"), Component.nullToEmpty("was toggled"))
-		);
 	}
 
 	// TIMER RESTART
@@ -160,14 +148,29 @@ public class EclipseClient implements ClientModInitializer {
 		ConfigManager.save();
 	}
 
-	// RETURN GAMMA STATE
+	// GET GAMMA
 	public static boolean getGamma() {
 		return config.gamma;
 	}
 
-	// RETURN SPRINT STATE
+	// GET SPRINT
 	public static boolean getSprint() {
 		return config.sprint;
+	}
+
+	// SET SPRINT
+	public static void setSprint(boolean b) {
+		config.sprint = b;
+	}
+
+	// GET SPRINT VISUAL
+	public static boolean getSprintVisual() {
+		return config.sprintVisual;
+	}
+
+	// SET SPRINT VISUAL
+	public static void setSprintVisual(boolean b) {
+		config.sprintVisual = b;
 	}
 
 	// TOGGLE GAMMA
@@ -175,19 +178,71 @@ public class EclipseClient implements ClientModInitializer {
 		Minecraft mc = Minecraft.getInstance();
 		config.gamma = !config.gamma;
 		ConfigManager.save();
-		mc.getToastManager().addToast(
-				SystemToast.multiline(mc, SystemToast.SystemToastId.NARRATOR_TOGGLE, Component.nullToEmpty("Gamma"), Component.nullToEmpty("is now " + config.gamma))
-		);
 	}
 
-	// TOGGLE FOG
-	private void toggleFog() {
-		Minecraft mc = Minecraft.getInstance();
-		config.nofog = !config.nofog;
-		ConfigManager.save();
-		mc.getToastManager().addToast(
-				SystemToast.multiline(mc, SystemToast.SystemToastId.NARRATOR_TOGGLE, Component.nullToEmpty("Fog"), Component.nullToEmpty("is now " + config.nofog))
-		);
+	// SET PINGOTHERS
+	public static void setPingOthers(boolean b) {
+		config.pingOthers = b;
+	}
+
+	// SET PINGSELF
+	public static void setPingSelf(boolean b) {
+		config.pingSelf = b;
+	}
+
+	// GET PINGOTHERS
+	public static boolean getPingOthers() {
+		return config.pingOthers;
+	}
+
+	// GET PINGSELF
+	public static boolean getPingSelf() {
+		return config.pingSelf;
+	}
+
+	// SET NOFOG
+	public static void setNoFog(boolean b) {
+		config.nofog = b;
+	}
+
+	// GET NOFOG
+	public static boolean getNoFog() {
+		return config.nofog;
+	}
+
+	// SET FPS
+	public static void setFPS(boolean b) {
+		config.fps = b;
+	}
+
+	// GET FPS
+	public static boolean getFPS() {
+		return config.fps;
+	}
+
+	// SET TIMER
+	public static void setTimer(boolean b) {
+		config.shown = b;
+	}
+
+	// GET TIMER
+	public static boolean getTimer() {
+		return config.shown;
+	}
+
+	// SET TIMER
+	public static void setCPS(boolean b) {
+		config.cps = b;
+	}
+
+	// GET CPS
+	public static boolean getCPS() {
+		return config.cps;
+	}
+
+	// SET GAMMA
+	public static void setGamma(boolean b) {
+		config.gamma = b;
 	}
 
 	// ANTI-CHEAT
@@ -215,6 +270,12 @@ public class EclipseClient implements ClientModInitializer {
 
 		Dragger cpsDragger = new Dragger(config.cpsX, config.cpsY, 4);
 
+		Dragger pingDragger = new Dragger(config.pingX, config.pingY, 5);
+
+		freecamController = new FreecamController();
+
+		freecamController.init(config);
+
 		// HUD INITIALIZER
 		HudElementRegistry.attachElementBefore(
 				VanillaHudElements.CHAT,
@@ -223,103 +284,15 @@ public class EclipseClient implements ClientModInitializer {
 		);
 
 		// KEYMAPPINGS
-		KeyMapping ts = KeyMappingHelper.registerKeyMapping(
-				new KeyMapping(
-						"Toggle Sprint",
-						InputConstants.Type.KEYSYM,
-						GLFW.GLFW_KEY_LEFT_CONTROL,
-						CATEGORY
-				)
-		);
+		EasyMapping ts = new EasyMapping("Toggle Sprint", GLFW.GLFW_KEY_LEFT_CONTROL);
 
-		KeyMapping tf = KeyMappingHelper.registerKeyMapping(
-				new KeyMapping(
-						"Toggle Fps",
-						InputConstants.Type.KEYSYM,
-						GLFW.GLFW_KEY_F6,
-						CATEGORY
-				)
-		);
+		EasyMapping tf = new EasyMapping("Toggle Fps", GLFW.GLFW_KEY_F6);
 
-		KeyMapping freec = KeyMappingHelper.registerKeyMapping(
-				new KeyMapping(
-						"Toggle Freecam",
-						InputConstants.Type.KEYSYM,
-						GLFW.GLFW_KEY_F4,
-						CATEGORY
-				)
-		);
+		EasyMapping freec = new EasyMapping("Toggle Freecam", GLFW.GLFW_KEY_F4);
 
-		KeyMapping screenKey = KeyMappingHelper.registerKeyMapping(
-				new KeyMapping(
-						"Toggles Config Menu",
-						InputConstants.Type.KEYSYM,
-						GLFW.GLFW_KEY_K,
-						CATEGORY
-				));
+		EasyMapping screenKey = new EasyMapping("Open Config Menu", GLFW.GLFW_KEY_COMMA);
 
-		KeyMapping gammaKey = KeyMappingHelper.registerKeyMapping(
-				new KeyMapping(
-						"Toggles Gamma",
-						InputConstants.Type.KEYSYM,
-						GLFW.GLFW_KEY_J,
-						CATEGORY
-				)
-		);
-
-		KeyMapping wFreecam = KeyMappingHelper.registerKeyMapping(
-				new KeyMapping(
-						"Freecam Forward",
-						InputConstants.Type.KEYSYM,
-						GLFW.GLFW_KEY_W,
-						CATEGORY
-				)
-		);
-
-		KeyMapping aFreecam = KeyMappingHelper.registerKeyMapping(
-				new KeyMapping(
-						"Freecam Left",
-						InputConstants.Type.KEYSYM,
-						GLFW.GLFW_KEY_A,
-						CATEGORY
-				)
-		);
-
-		KeyMapping sFreecam = KeyMappingHelper.registerKeyMapping(
-				new KeyMapping(
-						"Freecam Backward",
-						InputConstants.Type.KEYSYM,
-						GLFW.GLFW_KEY_S,
-						CATEGORY
-				)
-		);
-
-		KeyMapping dFreecam = KeyMappingHelper.registerKeyMapping(
-				new KeyMapping(
-						"Freecam Right",
-						InputConstants.Type.KEYSYM,
-						GLFW.GLFW_KEY_D,
-						CATEGORY
-				)
-		);
-
-		KeyMapping upFreecam = KeyMappingHelper.registerKeyMapping(
-				new KeyMapping(
-						"Freecam Up",
-						InputConstants.Type.KEYSYM,
-						GLFW.GLFW_KEY_SPACE,
-						CATEGORY
-				)
-		);
-
-		KeyMapping downFreecam = KeyMappingHelper.registerKeyMapping(
-				new KeyMapping(
-						"Freecam Down",
-						InputConstants.Type.KEYSYM,
-						GLFW.GLFW_KEY_LEFT_SHIFT,
-						CATEGORY
-				)
-		);
+		EasyMapping gammaKey = new EasyMapping("Toggle Gamma", GLFW.GLFW_KEY_J);
 
 		// TICK LOGIC
 		ClientTickEvents.END_CLIENT_TICK.register((minecraft -> {
@@ -335,9 +308,6 @@ public class EclipseClient implements ClientModInitializer {
 				config.sprint = !config.sprint;
 				ConfigManager.save();
 				if (config.sprintVisual) return;
-				minecraft.getToastManager().addToast(
-						SystemToast.multiline(minecraft, SystemToast.SystemToastId.NARRATOR_TOGGLE, Component.nullToEmpty("Sprint"), Component.nullToEmpty("is now " + config.sprint))
-				);
 			}
 
 			// FPS TOGGLE
@@ -375,7 +345,7 @@ public class EclipseClient implements ClientModInitializer {
 
 			// FPS SETTING
 			if (config.fps) {
-				fps = "FPS: " + Minecraft.getInstance().getFps();
+				fps = "FPS: " + minecraft.getFps();
 			}
 
 			// GET AWAIT
@@ -393,9 +363,14 @@ public class EclipseClient implements ClientModInitializer {
 				refresh(activePlayer.getUUID());
 			}
 
+			// CPS MAKER
 			if (config.cps) {cps = leftCPS.getCPS() + " | " + rightCPS.getCPS();}
 
-			// DRAGER
+			// PING MAKER
+			ping = minecraft.getConnection().getPlayerInfo(activePlayer.getUUID()).getLatency() + "ms";
+			pingint = minecraft.getConnection().getPlayerInfo(activePlayer.getUUID()).getLatency();
+
+			// DRAGGER
 			if (minecraft.screen instanceof Drager) {
 				if (GLFW.glfwGetMouseButton(window.handle(), 0) == GLFW.GLFW_PRESS) {
 					fpsDragger.refresh("FPS: " + minecraft.getFps());
@@ -413,6 +388,10 @@ public class EclipseClient implements ClientModInitializer {
 					cpsDragger.refresh(cps);
 					config.cpsX = cpsDragger.getX();
 					config.cpsY = cpsDragger.getY();
+
+					pingDragger.refresh(ping);
+					config.pingX = pingDragger.getX();
+					config.pingY = pingDragger.getY();
 				} else {
 					selected = 0;
 				}
@@ -432,94 +411,23 @@ public class EclipseClient implements ClientModInitializer {
 				ConfigManager.save();
 			}
 
-			if (minecraft.screen != null) return;
-
-			// FREECAM MOVEMENT
-			if (freecam && freecamEntity != null) {
-
-				Vec3 forward = new Vec3(
-						-Math.sin(Math.toRadians(activePlayer.getYRot())),
-						0,
-						Math.cos(Math.toRadians(activePlayer.getYRot()))
-				).normalize();
-
-				Vec3 right = new Vec3(
-						-forward.z,
-						0,
-						forward.x
-				).normalize();
-
-
-
-				double x = freecamEntity.getX();
-				double y = freecamEntity.getY();
-				double z = freecamEntity.getZ();
-
-				Vec3 motion = Vec3.ZERO;
-
-				if (wFreecam.isDown()) {
-					motion = motion.add(forward);
-				}
-
-				if (aFreecam.isDown()) {
-					motion = motion.subtract(right);
-				}
-
-				if (sFreecam.isDown()) {
-					motion = motion.subtract(forward);
-				}
-
-				if (dFreecam.isDown()) {
-					motion = motion.add(right);
-				}
-
-				// vertical extra
-				if (upFreecam.isDown()) {
-					motion = motion.add(0, 1, 0);
-				}
-				if (downFreecam.isDown()) {
-					motion = motion.add(0, -1, 0);
-				}
-
-				Vec3 current = freecamEntity.getDeltaMovement();
-				Vec3 target = motion.normalize().scale(config.distance);
-
-				double smoothing = 0.2;
-
-				Vec3 smoothed = current.add(target.subtract(current).scale(smoothing));
-
-				freecamEntity.setDeltaMovement(smoothed);
-
-
-				// POS SYNC
-				freecamEntity.setPos(x, y, z);
-			}
-
+			if (Minecraft.getInstance().screen != null) return;
+			freecamController.tick(activePlayer);
 		}));
 
 		// ANTI-CHEAT FREECAM
-		UseBlockCallback.EVENT.register((player, level, hand, hitResult) -> {
-			return cancelIfFreecam();
-		});
+		UseBlockCallback.EVENT.register((_, _, _, _) -> cancelIfFreecam());
 
-		UseEntityCallback.EVENT.register((player, level, hand, entity, hitResult) -> {
-			return cancelIfFreecam();
-		});
+		UseEntityCallback.EVENT.register((_, _, _, _, _) -> cancelIfFreecam());
 
-		AttackEntityCallback.EVENT.register((player, level, hand, entity, hitResult) -> {
-			return cancelIfFreecam();
-		});
+		AttackEntityCallback.EVENT.register((_, _, _, _, _) -> cancelIfFreecam());
 
-		AttackBlockCallback.EVENT.register((player, level, hand, pos, direction) -> {
-			return cancelIfFreecam();
-		});
+		AttackBlockCallback.EVENT.register((_, _, _, _, _) -> cancelIfFreecam());
 
-		UseItemCallback.EVENT.register((player, level, interactionHand) -> {
-			return cancelIfFreecam();
-		});
+		UseItemCallback.EVENT.register((_, _, _) -> cancelIfFreecam());
 
 		// UN FOG PROBLEM
-		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
+		ClientPlayConnectionEvents.JOIN.register((_, _, _) -> {
 			if (config.nofog) {
 				config.nofog = false;
 				waitforit = 0;
@@ -527,7 +435,7 @@ public class EclipseClient implements ClientModInitializer {
 		});
 
 		// ENTITY TICKER
-		ClientEntityEvents.ENTITY_LOAD.register((entity, world) -> {
+		ClientEntityEvents.ENTITY_LOAD.register((entity, _) -> {
 			if (entity instanceof Player player && !(player instanceof LocalPlayer)) {
 
 				loadedPlayersUUID.add(player.getUUID());
@@ -539,7 +447,7 @@ public class EclipseClient implements ClientModInitializer {
 		});
 
 		// ENTITY DIS-TICKER
-		ClientEntityEvents.ENTITY_UNLOAD.register((entity, world) -> {
+		ClientEntityEvents.ENTITY_UNLOAD.register((entity, _) -> {
 			if (entity instanceof Player player && !(player instanceof LocalPlayer)) {
 				loadedPlayersUUID.remove(player.getUUID());
 				loadedPlayers.remove(player);
@@ -549,63 +457,11 @@ public class EclipseClient implements ClientModInitializer {
 
 
 		// COMMANDS
-		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
-			// TOGGLE
-			dispatcher.register(ClientCommands.literal("toggle")
-
-					// TOGGLE FOG
-					.then(ClientCommands.literal("fog")
-							.executes(context -> {
-								toggleFog();
-								return 1;
-							})
-					)
-
-					// TOGGLE FPS
-					.then(ClientCommands.literal("fps")
-							.executes(context -> {
-								toggleFPS();
-								return 1;
-							})
-					)
-
-					// TOGGLE GAMMA
-					.then(ClientCommands.literal("gamma")
-							.executes(context -> {
-								toggleGamma();
-								return 1;
-							})
-					)
-
-					// TOGGLE SPRINT VISUAL
-					.then(ClientCommands.literal("sprintvisual")
-							.executes(context -> {
-								config.sprintVisual = !config.sprintVisual;
-								ConfigManager.save();
-								return 1;
-							})
-					)
-
-					// TOGGLE AUTOSPRINT
-					.then(ClientCommands.literal("autosprint")
-							.executes(context -> {
-								config.autoSprint = !config.autoSprint;
-								ConfigManager.save();
-								Minecraft.getInstance().getToastManager().addToast(
-										SystemToast.multiline(Minecraft.getInstance(), SystemToast.SystemToastId.NARRATOR_TOGGLE, Component.nullToEmpty("Sprint"), Component.nullToEmpty("Sprint is now " + config.autoSprint))
-								);
-								return 1;
-							})
-					)
-			);
-
+		ClientCommandRegistrationCallback.EVENT.register((dispatcher, _) -> {
 			// ENABLE PVP MODE
 			dispatcher.register(ClientCommands.literal("pvp")
 					.executes(context -> {
 						setPvp();
-						Minecraft.getInstance().getToastManager().addToast(
-								SystemToast.multiline(Minecraft.getInstance(), SystemToast.SystemToastId.NARRATOR_TOGGLE, Component.nullToEmpty("PVP"), Component.nullToEmpty("PVP settings were applied"))
-						);
 						return 1;
 					})
 			);
@@ -634,16 +490,6 @@ public class EclipseClient implements ClientModInitializer {
 									})
 							)
 					)
-
-					// CHANGE SPEED
-					.then(ClientCommands.literal("smoothie")
-							.executes(context -> {
-
-								ConfigManager.save();
-								return 1;
-							})
-					)
-
 			);
 
 			dispatcher.register(ClientCommands.literal("timer")
@@ -738,7 +584,7 @@ public class EclipseClient implements ClientModInitializer {
 			);
 		}
 
-		// SPRINT DISPLAY
+		// CPS DISPLAY
 		if (config.cps) {
 			graphics.text(
 					Minecraft.getInstance().font,
@@ -746,6 +592,17 @@ public class EclipseClient implements ClientModInitializer {
 					config.cpsX,
 					config.cpsY,
 					0xFFFFFFFF
+			);
+		}
+
+		// PING DISPLAY
+		if (config.pingSelf) {
+			graphics.text(
+					Minecraft.getInstance().font,
+					ping,
+					config.pingX,
+					config.pingY,
+					pingint < 50 ? 0xFF00FF00 : pingint < 200 ? 0xFFFFA500 : 0xFFFF0000
 			);
 		}
 	}

@@ -14,7 +14,9 @@
 		"EntityRendererMixin",
 		"EntityMixin",
 		"TabListMixin",
-		"CPSMixin"
+		"CPSMixin",
+		"TitleScreenMixin",
+		"WindowMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

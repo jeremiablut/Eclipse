@@ -1,6 +1,5 @@
-package com.eclipse.client.ConfigScreen.TimerConfig;
+package com.eclipse.client.ConfigScreen;
 
-import com.eclipse.client.ConfigScreen.CustomScreen;
 import com.eclipse.client.EclipseClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
@@ -16,11 +15,20 @@ public class TimerConfig extends Screen {
     protected void init() {
         int buttonWidth = 120;
         int buttonHeight = 20;
-        int x = this.width / 2 - buttonWidth / 2;
+        int x = this.width / 5 * 2;
+
+        String call = "Timer: ";
 
         this.addRenderableWidget(
-                Button.builder(Component.literal("Toggle Timer"), (btn) -> {
-                    EclipseClient.toggleTimer();
+                Button.builder(Component.literal("«"), (btn) -> {
+                    Minecraft.getInstance().setScreen(new CustomScreen(Component.empty()));
+                }).bounds(0, 40, 40, 20).build()
+        );
+
+        this.addRenderableWidget(
+                Button.builder(Component.literal(call + EclipseClient.getTimer()), (btn) -> {
+                    EclipseClient.setTimer(!EclipseClient.getTimer());
+                    btn.setMessage(Component.nullToEmpty(call + EclipseClient.getTimer()));
                 }).bounds(x, 40, buttonWidth, buttonHeight).build()
         );
 
