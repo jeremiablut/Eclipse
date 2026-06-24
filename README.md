@@ -203,7 +203,7 @@ https://docs.google.com/forms/d/e/1FAIpQLSdC_3SM02lKfVTV1IyXYU7uZB4V9yEyLHUcJbVV
 - [x] Freecam Key Binds now configurable
 - [x] Better Performance
 
-## Big UPDATE 1.2.1
+## Massive Overhaul UPDATE 1.2.1
 - [x] Better Performance
 - [x] Eclipse Logo in Main menu
 - [x] Eclipse in the name of the Minecraft window
