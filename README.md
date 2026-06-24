@@ -1,35 +1,65 @@
 # **Eclipse**
 This _Clientside_ Mod is meant as a collection of client-side utilities. This mod is still work in progress.
 ## Features:
->- **/toggle fps** shows fps count in actionbar (defaults to false) Key Bind: **F6**
->- **/toggle autosprint** toggles autosprint (defaults to true) Key Bind: **Left Control**
->- **/pvp** enables pvp mode, more info below (defaults to true)
->- **/freecam toggle** toggles freecam, more info below (defaults to false) Key Bind: **F4**
->- **/timer + expansion** more Info below
->- **/toggle sprintvisual** toggles the DISPLAY of autosprint
->- **/toggle fog** toggles nofog
->- **/toggle gamma** toggles gamma (defaults to true) Key Bind: **J**
->- Config GUI open via **K**
->- Auto Marker for players using this mod (with different Ranks --> upcoming), more info below
+>- **Config GUI**, open via **COMMA** , more info below
+>- **Show FPS count** (default to false), Key Bind: **F6**, *configurable in GUI*
+>- **Show Ping** (default to true), *configurable in GUI*
+>- **Show CPS** (default to true), *configurable in GUI*
+>- **Enable pvp mode** (default to true), Command: **/pvp**, more info below
+>- **Toggle autosprint** (default to true), Key Bind: **Left Control**, *configurable in GUI*
+>- **Toggle display of autosprint** (default to true), *configurable in GUI*
+>- **Toggle Freecam** (default to false), Key Bind: **F4**, Command: **/freecam toggle**, more below
+>- **Timer+Expansion** (default to false), Command: **/timer**, *configurable in GUI*, more Info below
+>- **Toggle nofog** (default to true), *configurable in GUI*
+>- **Toggle gamma** (default to true), Key Bind: **J**, *configurable in GUI*
+>- **Auto Marker for players using this mod** (with different Ranks --> upcoming), more info below
+## Commands:
+>- **/pvp** enables pvp mode, more info below (default to true)
+>- **/freecam toggle** toggles Freecam, more info below (default to false)
+>- **/timer + expansion** more Info below (default to false)
 ## Hotkeys:
+>- **COMMA** Toggles Config Menu
 >- **F6** Toggles Fps
 >- **F4** Toggles Freecam
->- **Left Control** Toggle Sprint
->- **K** Toggles Config Menu
+>- **Left Control** Toggles Sprint
 >- **J** Toggles Gamma
+
+## Config GUI
+The Config GUI adds a menu in Minecraft, that opens by pressing **COMMA** , in which the things in the List below are configurable.
+#### Move
+This opens a under menu in which the Widgets like the timer and the FPS count can be moved around the screen.
+#### FPS
+> - **Toggle FPS** (shows FPS count)
+#### Timer
+> - **Toggle Timer** (toggles timer)
+> - **Start Timer** (starts timer)
+> - **Stop Timer** (stop timer)
+> - **Restart Timer** (restarts timer)
+#### CPS
+> - **Toggle CPS** (toggles CPS)
+#### Ping
+> - **Ping Self** (toggles your ping)
+> - **Ping TAB** (toggles Ping in TAB List)
+#### NoFog
+> - **Nofog** (toggles Nofog)
+#### Sprint
+> - **Auto Sprint** (toggles Auto Sprint)
+> - **Visual Sprint** (toggles Sprint Visual)
+#### Gamma
+> - **Gamma** (toggles Gamma)
 
 ### PVP MODE
 The **PVP MODE** sets *various* Minecraft options to the best values for pvp like turning off *unimportant* and *annoying* features which are unnecessary for PVP, toggle able once (can't be undone) with **/pvp**.
 
-> - No bob (no camera shake while walking)
-> - No vignette (no black borders)
-> - No damage tilt (when you get damage your camera is not shaking)
-> - No narratorHotkey (disables the narrator hot key)
-> - No fov effect (this makes that if you accelerate your fov is not changing)
-> - No entity shadows (disables the entity shadows, what can cause performance impacts)
+> - **No bob** (no camera shake while walking)
+> - **No vignette** (no black borders)
+> - **No damage tilt** (when you get damage your camera is not shaking)
+> - **No narratorHotkey** (disables the narrator hot key)
+> - **No fov effect** (this makes that if you accelerate your fov is not changing)
+> - **No entity shadows** (disables the entity shadows, what can cause performance impacts)
 
 ### Timer
-The Timer adds a stopwatch which is manageable via UI or the List of commands below.
+The Timer adds a stopwatch which is manageable and movable via GUI or the List of commands below.
 
 > - **/timer toggle** toggles timer
 > - **/timer start** starts timer
@@ -37,11 +67,11 @@ The Timer adds a stopwatch which is manageable via UI or the List of commands be
 > - **/timer restart** restarts the timer
 > - **/timer togglemode** switches between analog and digital timer mode
 
-### Freecam
-This Feature adds a Freecam to fly around like in Creative Mode while the Player does not move.
+## Freecam
+This Feature adds a Freecam to fly around like in Creative Mode while the Player does not move. The Freecam is movable by W, A, S, D, Left Shift and Space. These Key Binds can be changed in the Settings.
 >- **/freecam toggle** toggles freecam
 >- **/freecam speed** controls the speed of the Freecam
->- **/freecam smoothie** controls the way the Freecam floats after you release the key
+>- **F4** toggles Freecam
 
 ### Highlighting other Players with Eclipse Mod
 This feature highlights Players with Eclipse Mod with an EP (and with different Ranks --> upcoming) before name.
@@ -172,6 +202,16 @@ https://docs.google.com/forms/d/e/1FAIpQLSdC_3SM02lKfVTV1IyXYU7uZB4V9yEyLHUcJbVV
 - [x] CPS Display added
 - [x] Freecam Key Binds now configurable
 - [x] Better Performance
+
+## Big UPDATE 1.2.1
+- [x] Better Performance
+- [x] Eclipse Logo in Main menu
+- [x] Eclipse in the name of the Minecraft window
+- [x] Better Keybinds
+- [x] CPS Display now toggleable
+- [x] Ping Display added
+- [x] Config Menu improvements
+- [x] Toasts have been removed
 
 ## Upcoming
 - [ ] Different Ranks for Markers before name
