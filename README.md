@@ -15,7 +15,7 @@ This _Clientside_ Mod is meant as a collection of client-side utilities. This mo
 >- **Auto Marker for players using this mod** (with different Ranks --> upcoming), more info below
 ## Commands:
 >- **/pvp** enables pvp mode, more info below (default to true)
->- **/freecam toggle** toggles Freecam, more info below (default to false)
+>- **/freecam** toggles Freecam, more info below (default to false)
 >- **/timer + expansion** more Info below (default to false)
 ## Hotkeys:
 >- **COMMA** Toggles Config Menu
@@ -69,84 +69,90 @@ The Timer adds a stopwatch which is manageable and movable via GUI or the List o
 
 ## Freecam
 This Feature adds a Freecam to fly around like in Creative Mode while the Player does not move. The Freecam is movable by W, A, S, D, Left Shift and Space. These Key Binds can be changed in the Settings.
->- **/freecam toggle** toggles freecam
+
+>- **/freecam** toggles freecam
 >- **/freecam speed** controls the speed of the Freecam
 >- **F4** toggles Freecam
+
+## Wiki
+This Feature adds the ability to use the Minecraft Wiki directly in Minecraft, which is manageable via the List of commands below.
+
+>- **/wiki+Name** opens the Minecraft Wiki for the item in the browser
+>- **/wikihand** opens the Minecraft Wiki for the item in offhand in the browser
 
 ### Highlighting other Players with Eclipse Mod
 This feature highlights Players with Eclipse Mod with an EP (and with different Ranks --> upcoming) before name.
 
-
 In case of you having any brilliant ideas, please submit them here:
 https://docs.google.com/forms/d/e/1FAIpQLSdC_3SM02lKfVTV1IyXYU7uZB4V9yEyLHUcJbVV_DdIoP3lsA/viewform?usp=publish-editor
 
-## Basic UPDATE 1.0.0
-- [x] Auto Sprinting
-- [x] Fps counter
-- [x] Resetrenderengine
+# Updates:
 
-## PVP UPDATE 1.0.1
-- [x] PVP Mode
+## Upcoming
+- [ ] Different Ranks for Markers before name
 
-## Beta Freecam UPDATE 1.0.2
-- [x] Freecam Basics
-- [x] Freecam Up Move
-- [x] Freecam Down Move
-- [x] Resetrenderengine rewrote
+## Design and Furniture UPDATE 1.2.2
+- [x] Redesigning of Config Menu
+- [x] Better Performance
+- [x] Changed Command for Freecam toggle
+- [x] Fixed Freecam culling
+- [x] Fixed problem with offhand item in Freecam
+- [x] Fixed Timer restart
+- [x] Fixed problems with NoFog
+- [x] Integrated Wiki
+- [x] Fixed Saving of vars
 
-## Freecam Movement UPDATE 1.0.3
-- [x] Freecam Forward
-- [x] Freecam Backward
+## Massive Overhaul UPDATE 1.2.1
+- [x] Better Performance
+- [x] Eclipse Logo in Main menu
+- [x] Eclipse in the name of the Minecraft window
+- [x] Better Keybinds
+- [x] CPS Display now toggleable
+- [x] Ping Display added
+- [x] Config Menu improvements
+- [x] Toasts have been removed
 
-## Timer UPDATE 1.0.4
-- [x] Timer added
-- [x] Timer  controls
-- [x] Timer analog and digital
+## Featuring UPDATE 1.2.0
+- [x] CPS Display added
+- [x] Freecam Key Binds now configurable
+- [x] Better Performance
 
-## Final Freecam UPDATE 1.0.5.2
-- [x] Freecam Left
-- [x] Freecam Right
+## Mixed UPDATE 1.1.9
+- [x] Better Prefix
+- [x] Prefix now visible when playerlist is shown
+- [x] Config GUI was optimized
 
-## Bug Fixer UPDATE 1.0.6
-- [x] Bug Fixes in if statement
-- [x] Shorted code
+## Big Step (AGAIN) UPDATE 1.1.8
+- [x] Added multi Prefix Support
+- [x] Better support at autosprint
 
-## Version UPDATE 1.0.7
-- [x] Code converted
+## Big Step UPDATE 1.1.7
+- [x] Now you can see players with my mod with an EP before name
+- [x] Fog fix
 
-## Version UPDATE 1.0.7.1
-- [x] Freecam Fix
-- [x] Removed VSync in PVPMODE
+## Mixin Freecam But Better UPDATE 1.1.6
+- [x] You can now see yourself in Freecam
+- [x] Freecam Movement was made much better
 
-## Controls UPDATE 1.0.8
-- [x] Control rebinding
+## Mixin Better UPDATE 1.1.5
+- [x] No Server-Side Freecam Check
+- [x] No fog
+- [x] Optimized code
+- [x] Better Freecam Performence
 
-## Save Data UPDATE 1.0.9
-- [x] Implemented storage
-- [x] Freecamspeed control
-- [x] Color control
+## Better UPDATE 1.1.4 (for older Version)
+- [x] No Blur in move mode
+- [x] Made only 1 move mode
+- [x] Added grid to moving
+- [x] Removed losing Focus while dragging
+- [x] Added autosprint to HUD
 
-## Unhack UPDATE 1.1.0
-- [x] Added unabletohack function
-
-## Rename UPDATE 1.1.1
-- [x] Renamed config file
-
-## Back To The Past UPDATE 1.1.2
-- [x] Brought all new features in 1.21.11
-
-## Better UPDATE 1.1.3
-- [x] Better code
-- [x] Better timer logic
-- [x] Config gui
-- [x] Freecam hand fix
-- [x] Less crashes
-- [x] Timer & Fps hud portable
-- [x] Threw aways: reload, colortimer, colorfps
-- [x] Save Config fix
-- [x] Better readable code
-- [x] Better autosprint
-- [x] Better freecam speed control
+## Better UPDATE 1.1.4
+- [x] No Blur in move mode
+- [x] Made only 1 move mode
+- [x] Added grid to moving
+- [x] Removed losing Focus while dragging
+- [x] Added autosprint to HUD
 
 ## Better UPDATE 1.1.3 (for older Version)
 - [x] Better code
@@ -161,60 +167,75 @@ https://docs.google.com/forms/d/e/1FAIpQLSdC_3SM02lKfVTV1IyXYU7uZB4V9yEyLHUcJbVV
 - [x] Better autosprint
 - [x] Better freecam speed control
 
-## Better UPDATE 1.1.4
-- [x] No Blur in move mode
-- [x] Made only 1 move mode
-- [x] Added grid to moving
-- [x] Removed losing Focus while dragging
-- [x] Added autosprint to HUD
+## Better UPDATE 1.1.3
+- [x] Better code
+- [x] Better timer logic
+- [x] Config gui
+- [x] Freecam hand fix
+- [x] Less crashes
+- [x] Timer & Fps hud portable
+- [x] Threw aways: reload, colortimer, colorfps
+- [x] Save Config fix
+- [x] Better readable code
+- [x] Better autosprint
+- [x] Better freecam speed control
 
-## Better UPDATE 1.1.4 (for older Version)
-- [x] No Blur in move mode
-- [x] Made only 1 move mode
-- [x] Added grid to moving
-- [x] Removed losing Focus while dragging
-- [x] Added autosprint to HUD
+## Back To The Past UPDATE 1.1.2
+- [x] Brought all new features in 1.21.11
 
-## Mixin Better UPDATE 1.1.5
-- [x] No Server-Side Freecam Check
-- [x] No fog
-- [x] Optimized code
-- [x] Better Freecam Performence
+## Rename UPDATE 1.1.1
+- [x] Renamed config file
 
-## Mixin Freecam But Better UPDATE 1.1.6
-- [x] You can now see yourself in Freecam
-- [x] Freecam Movement was made much better
+## Unhack UPDATE 1.1.0
+- [x] Added unabletohack function
 
-## Big Step UPDATE 1.1.7
-- [x] Now you can see players with my mod with an EP before name
-- [x] Fog fix
+## Save Data UPDATE 1.0.9
+- [x] Implemented storage
+- [x] Freecamspeed control
+- [x] Color control
 
-## Big Step (AGAIN) UPDATE 1.1.8
-- [x] Added multi Prefix Support
-- [x] Better support at autosprint
+## Controls UPDATE 1.0.8
+- [x] Control rebinding
 
-## Mixed UPDATE 1.1.9
-- [x] Better Prefix
-- [x] Prefix now visible when playerlist is shown
-- [x] Config GUI was optimized
+## Version UPDATE 1.0.7.1
+- [x] Freecam Fix
+- [x] Removed VSync in PVPMODE
 
-## Featuring UPDATE 1.2.0
-- [x] CPS Display added
-- [x] Freecam Key Binds now configurable
-- [x] Better Performance
+## Version UPDATE 1.0.7
+- [x] Code converted
 
-## Massive Overhaul UPDATE 1.2.1
-- [x] Better Performance
-- [x] Eclipse Logo in Main menu
-- [x] Eclipse in the name of the Minecraft window
-- [x] Better Keybinds
-- [x] CPS Display now toggleable
-- [x] Ping Display added
-- [x] Config Menu improvements
-- [x] Toasts have been removed
+## Bug Fixer UPDATE 1.0.6
+- [x] Bug Fixes in if statement
+- [x] Shorted code
 
-## Upcoming
-- [ ] Different Ranks for Markers before name
+## Final Freecam UPDATE 1.0.5.2
+- [x] Freecam Left
+- [x] Freecam Right
+
+## Timer UPDATE 1.0.4
+- [x] Timer added
+- [x] Timer  controls
+- [x] Timer analog and digital
+
+## Freecam Movement UPDATE 1.0.3
+- [x] Freecam Forward
+- [x] Freecam Backward
+
+## Beta Freecam UPDATE 1.0.2
+- [x] Freecam Basics
+- [x] Freecam Up Move
+- [x] Freecam Down Move
+- [x] Resetrenderengine rewrote
+
+## PVP UPDATE 1.0.1
+- [x] PVP Mode
+
+## Basic UPDATE 1.0.0
+- [x] Auto Sprinting
+- [x] Fps counter
+- [x] Resetrenderengine
+
+
 
 Hotfixes are not listed in the List because they mostly just solve bugs or make only small improvements.
 
