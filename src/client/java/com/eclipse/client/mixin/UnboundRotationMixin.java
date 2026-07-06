@@ -1,6 +1,7 @@
 package com.eclipse.client.mixin;
 
 import com.eclipse.client.EclipseClient;
+import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.PacketType;
 import net.minecraft.network.protocol.game.ClientboundPlayerRotationPacket;
 import org.spongepowered.asm.mixin.Mixin;

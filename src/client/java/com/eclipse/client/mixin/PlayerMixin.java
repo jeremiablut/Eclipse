@@ -30,15 +30,11 @@ public class PlayerMixin {
         if (mc.level == null || mc.player == null) return;
 
         if (freecam) {
-            // Player sichtbar machen
             Entity player = mc.player;
             TickRateManager tickRateManager = mc.level.tickRateManager();
             float g = deltaTracker.getGameTimeDeltaPartialTick(!tickRateManager.isEntityFrozen(player));
             EntityRenderState entityRenderState = this.extractEntity(player, g);
             renderState.entityRenderStates.add(entityRenderState);
-
-            // FreecamEntity rotation auf Player übertragen
-            // (falls du es hier lösen willst statt MouseHandlerMixin)
         }
     }
 }

@@ -46,6 +46,12 @@ public class TabListMixin {
         if (EclipseClient.getPingOthers()) {
             Minecraft mc = Minecraft.getInstance();
 
+            if (info == null) {
+                ci.cancel();
+                return;
+            }
+
+
             String text = info.getLatency() + "ms";
 
             int x = xo + slotWidth - mc.font.width(text) - 4;

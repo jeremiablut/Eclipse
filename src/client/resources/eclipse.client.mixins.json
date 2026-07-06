@@ -16,7 +16,11 @@
 		"TabListMixin",
 		"CPSMixin",
 		"TitleScreenMixin",
-		"WindowMixin"
+		"WindowMixin",
+		"PauseScreenMixin",
+		"ChunkCullingMixin",
+		"FrustumMixin",
+		"ChatComponentMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

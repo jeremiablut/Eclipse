@@ -1,10 +1,13 @@
 package com.eclipse.client.ConfigScreen;
 
 import com.eclipse.client.EclipseClient;
+import com.eclipse.client.ui.EclipseButton;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+
+import static com.eclipse.client.ConfigScreen.CustomScreen.buttonHeight;
+import static com.eclipse.client.ConfigScreen.CustomScreen.buttonWidth;
 
 public class Drager extends Screen {
     public Drager(Component title) {
@@ -16,17 +19,16 @@ public class Drager extends Screen {
     public void init() {
         background = Minecraft.getInstance().options.menuBackgroundBlurriness().get();
         Minecraft.getInstance().options.menuBackgroundBlurriness().set(0);
-
-        int buttonWidth = 20;
-        int buttonHeight = 20;
-        int x = this.width / 5 * 2;
+        int x = this.width / 2 - buttonWidth / 2;
 
         this.addRenderableWidget(
-                Button.builder(Component.literal("⟳"), (btn) -> {
-                    EclipseClient.sprintReset();
-                    EclipseClient.fpsReset();
-                    EclipseClient.timerReset();
-                }).bounds(x, 40, buttonWidth, buttonHeight).build()
+                new EclipseButton(
+                        x, 40, buttonWidth, buttonHeight,
+                        Component.literal("RESET"),
+                        (btn) -> {
+                            EclipseClient.resetPos();
+                        }
+                )
         );
     }
 

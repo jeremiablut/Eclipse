@@ -1,30 +1,30 @@
 package com.eclipse.client.mixin;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.fog.FogData;
+import com.eclipse.client.EclipseClient;
+import com.mojang.blaze3d.buffers.GpuBuffer;
+import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import net.minecraft.client.renderer.fog.FogRenderer;
-import net.minecraft.world.effect.MobEffects;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import static com.eclipse.client.config.ConfigManager.config;
-
 @Mixin(FogRenderer.class)
 public class FogRemoverMixin {
 
-    @Inject(method = "setupFog", at = @At("RETURN"), cancellable = true)
-    private void setupFog(CallbackInfoReturnable<FogData> cir) {
-        if (!config.nofog || Minecraft.getInstance().player.hasEffect(MobEffects.BLINDNESS)) return;
-        FogData fog = cir.getReturnValue();
+    @Shadow @Final
+    private GpuBuffer emptyBuffer;
 
-        fog.renderDistanceStart = 999999f;
-        fog.renderDistanceEnd = 1000000f;
+    @Shadow
+    public static int FOG_UBO_SIZE;
 
-        fog.environmentalStart = 999999f;
-        fog.environmentalEnd = 1000000f;
+    @Inject(method = "getBuffer", at = @At("HEAD"), cancellable = true)
+    private void eclipse$removeFog(FogRenderer.FogMode mode, CallbackInfoReturnable<GpuBufferSlice> cir) {
 
-        cir.setReturnValue(fog);
+        if (EclipseClient.getNoFog()) {
+            cir.setReturnValue(emptyBuffer.slice(0L, (long) FOG_UBO_SIZE));
+        }
     }
 }

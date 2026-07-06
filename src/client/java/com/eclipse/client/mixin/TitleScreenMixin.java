@@ -1,9 +1,11 @@
 package com.eclipse.client.mixin;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -11,10 +13,14 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(TitleScreen.class)
-public class TitleScreenMixin {
+public class TitleScreenMixin extends Screen {
 
     private static final Identifier ECLIPSE_LOGO =
             Identifier.fromNamespaceAndPath("eclipse", "textures/gui/text.png");
+
+    protected TitleScreenMixin(Component title) {
+        super(title);
+    }
 
     @Inject(
             method = "extractRenderState",
@@ -27,7 +33,7 @@ public class TitleScreenMixin {
     private void eclipse$render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta, CallbackInfo ci) {
 
         int texWidth = 1024;
-        int texHeight = 319;
+        int texHeight = 266;
 
         float aspect = texHeight / (float) texWidth;
 
@@ -35,7 +41,7 @@ public class TitleScreenMixin {
         int renderHeight = (int)(renderWidth * aspect);
 
         int x = graphics.guiWidth() / 2 - renderWidth / 2;
-        int y = 75;
+        int y = 83;
 
         graphics.blit(
                 RenderPipelines.GUI_TEXTURED,
@@ -47,5 +53,4 @@ public class TitleScreenMixin {
                 texWidth, texHeight
         );
     }
-
 }

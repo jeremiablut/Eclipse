@@ -9,29 +9,40 @@ import com.eclipse.client.config.ConfigManager;
 import com.eclipse.client.config.ModConfig;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.brigadier.arguments.FloatArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.ArgumentBuilder;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.fabricmc.fabric.api.event.player.*;
+import net.fabricmc.fabric.impl.menu.client.ClientNetworking;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.toasts.SystemToast;
+import net.minecraft.client.multiplayer.chat.LoggedChatEvent;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.parsing.packrat.commands.CommandArgumentParser;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 
 import org.lwjgl.glfw.GLFW;
 
 import javax.swing.*;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.*;
 
 import static com.eclipse.client.PackagerClient.getUUID;
@@ -43,9 +54,8 @@ public class EclipseClient implements ClientModInitializer {
 	private static long lastChange = 0, lastChangeRef = 0;
 	private static ModConfig config;
 	public static FreecamEntity freecamEntity;
-	private static String fps, cps = "0 | 0", ping = "";
-	private int waitforit = 0;
-    private static int pingint;
+	private static String fps, cps = "0 | 0", ping = "0ms";
+    private static int pingint = 0;
 	private FreecamController freecamController;
 	public static int selected = 0;
 	public static CPSCounter leftCPS = new CPSCounter();
@@ -59,6 +69,12 @@ public class EclipseClient implements ClientModInitializer {
 	public static Set<Player> loadedPlayers = new HashSet<>();
 
 	public static Map<UUID, String> eclipsePlayerPrefixes = new HashMap<>();
+
+	private static WidgetHUD fpsWidget,
+			timerWidget,
+			sprintWidget,
+			cpsWidget,
+			pingWidget;
 
 	// PVP SETTINGS
 	private void setPvp() {
@@ -122,30 +138,19 @@ public class EclipseClient implements ClientModInitializer {
 		config.minutes = 0;
 		config.hours = 0;
 		ConfigManager.save();
-		mc.getToastManager().addToast(
-				SystemToast.multiline(mc, SystemToast.SystemToastId.NARRATOR_TOGGLE, Component.nullToEmpty("Timer"), Component.nullToEmpty("was restarted"))
-		);
 	}
 
-	// TIMER POS RESET
-	public static void timerReset() {
-		config.timerX = 10;
-		config.timerY = 20;
-		ConfigManager.save();
-	}
+	// RESET POSIS
+	public static void resetPos() {
+		config.fpsV = fpsWidget.reset();
 
-	// SPRINT POS RESET
-	public static void sprintReset() {
-		config.sprintX = 10;
-		config.sprintY = 30;
-		ConfigManager.save();
-	}
+		config.cpsV = cpsWidget.reset();
 
-	// FPS POS RESET
-	public static void fpsReset() {
-		config.fpsX = 10;
-		config.fpsY = 10;
-		ConfigManager.save();
+		config.pingV = pingWidget.reset();
+
+		config.sprintV = sprintWidget.reset();
+
+		config.timerV = timerWidget.reset();
 	}
 
 	// GET GAMMA
@@ -161,6 +166,7 @@ public class EclipseClient implements ClientModInitializer {
 	// SET SPRINT
 	public static void setSprint(boolean b) {
 		config.sprint = b;
+		ConfigManager.save();
 	}
 
 	// GET SPRINT VISUAL
@@ -171,6 +177,7 @@ public class EclipseClient implements ClientModInitializer {
 	// SET SPRINT VISUAL
 	public static void setSprintVisual(boolean b) {
 		config.sprintVisual = b;
+		ConfigManager.save();
 	}
 
 	// TOGGLE GAMMA
@@ -183,11 +190,13 @@ public class EclipseClient implements ClientModInitializer {
 	// SET PINGOTHERS
 	public static void setPingOthers(boolean b) {
 		config.pingOthers = b;
+		ConfigManager.save();
 	}
 
 	// SET PINGSELF
 	public static void setPingSelf(boolean b) {
 		config.pingSelf = b;
+		ConfigManager.save();
 	}
 
 	// GET PINGOTHERS
@@ -203,7 +212,9 @@ public class EclipseClient implements ClientModInitializer {
 	// SET NOFOG
 	public static void setNoFog(boolean b) {
 		config.nofog = b;
+		ConfigManager.save();
 	}
+
 
 	// GET NOFOG
 	public static boolean getNoFog() {
@@ -213,6 +224,7 @@ public class EclipseClient implements ClientModInitializer {
 	// SET FPS
 	public static void setFPS(boolean b) {
 		config.fps = b;
+		ConfigManager.save();
 	}
 
 	// GET FPS
@@ -223,6 +235,7 @@ public class EclipseClient implements ClientModInitializer {
 	// SET TIMER
 	public static void setTimer(boolean b) {
 		config.shown = b;
+		ConfigManager.save();
 	}
 
 	// GET TIMER
@@ -233,6 +246,7 @@ public class EclipseClient implements ClientModInitializer {
 	// SET TIMER
 	public static void setCPS(boolean b) {
 		config.cps = b;
+		ConfigManager.save();
 	}
 
 	// GET CPS
@@ -243,6 +257,7 @@ public class EclipseClient implements ClientModInitializer {
 	// SET GAMMA
 	public static void setGamma(boolean b) {
 		config.gamma = b;
+		ConfigManager.save();
 	}
 
 	// ANTI-CHEAT
@@ -262,15 +277,11 @@ public class EclipseClient implements ClientModInitializer {
 			ConfigManager.save();
 		}
 
-		Dragger fpsDragger = new Dragger(config.fpsX, config.fpsY, 1);
-
-		Dragger timerDragger = new Dragger(config.timerX, config.timerY, 2);
-
-		Dragger sprintDragger = new Dragger(config.sprintX, config.sprintY, 3);
-
-		Dragger cpsDragger = new Dragger(config.cpsX, config.cpsY, 4);
-
-		Dragger pingDragger = new Dragger(config.pingX, config.pingY, 5);
+		fpsWidget = new WidgetHUD(config.fpsV, fps, new Vec2I(10, 10));
+		timerWidget = new WidgetHUD(config.timerV, config.timer, new Vec2I(10, 20));
+		sprintWidget = new WidgetHUD(config.sprintV, config.sprint ? "SPRINTING" : "WALKING", new Vec2I(10, 30));
+		cpsWidget = new WidgetHUD(config.cpsV, cps, new Vec2I(10, 40));
+		pingWidget = new WidgetHUD(config.pingV, ping, new Vec2I(10, 50));
 
 		freecamController = new FreecamController();
 
@@ -315,14 +326,6 @@ public class EclipseClient implements ClientModInitializer {
 				toggleFPS();
 			}
 
-			// NO FOG FIX
-			if (waitforit < 10) {
-				waitforit++;
-			} else if (waitforit == 10) {
-				config.nofog = true;
-				waitforit++;
-			}
-
 			// FREECAM TOGGLE
 			while (freec.consumeClick()) {
 				Freecam.toggle();
@@ -364,34 +367,31 @@ public class EclipseClient implements ClientModInitializer {
 			}
 
 			// CPS MAKER
-			if (config.cps) {cps = leftCPS.getCPS() + " | " + rightCPS.getCPS();}
+			if (config.cps) cps = leftCPS.getCPS() + " | " + rightCPS.getCPS();
 
 			// PING MAKER
-			ping = minecraft.getConnection().getPlayerInfo(activePlayer.getUUID()).getLatency() + "ms";
-			pingint = minecraft.getConnection().getPlayerInfo(activePlayer.getUUID()).getLatency();
+			if (Objects.requireNonNull(minecraft.getConnection()).getPlayerInfo(activePlayer.getUUID()) != null) {
+				ping = Objects.requireNonNull(minecraft.getConnection().getPlayerInfo(activePlayer.getUUID())).getLatency() + "ms";
+				pingint = Objects.requireNonNull(minecraft.getConnection().getPlayerInfo(activePlayer.getUUID())).getLatency();
+			}
 
 			// DRAGGER
 			if (minecraft.screen instanceof Drager) {
 				if (GLFW.glfwGetMouseButton(window.handle(), 0) == GLFW.GLFW_PRESS) {
-					fpsDragger.refresh("FPS: " + minecraft.getFps());
-					config.fpsX = fpsDragger.getX();
-					config.fpsY = fpsDragger.getY();
+					config.fpsV = fpsWidget.pos;
+					fpsWidget.refresh();
 
-					timerDragger.refresh(config.timer);
-					config.timerX = timerDragger.getX();
-					config.timerY = timerDragger.getY();
+					config.timerV = timerWidget.pos;
+					timerWidget.refresh();
 
-					sprintDragger.refresh(config.sprint ? "SPRINTING" : "WALKING");
-					config.sprintX = sprintDragger.getX();
-					config.sprintY = sprintDragger.getY();
+					config.sprintV = sprintWidget.pos;
+					sprintWidget.refresh();
 
-					cpsDragger.refresh(cps);
-					config.cpsX = cpsDragger.getX();
-					config.cpsY = cpsDragger.getY();
+					config.cpsV = cpsWidget.pos;
+					cpsWidget.refresh();
 
-					pingDragger.refresh(ping);
-					config.pingX = pingDragger.getX();
-					config.pingY = pingDragger.getY();
+					config.pingV = pingWidget.pos;
+					pingWidget.refresh();
 				} else {
 					selected = 0;
 				}
@@ -426,14 +426,6 @@ public class EclipseClient implements ClientModInitializer {
 
 		UseItemCallback.EVENT.register((_, _, _) -> cancelIfFreecam());
 
-		// UN FOG PROBLEM
-		ClientPlayConnectionEvents.JOIN.register((_, _, _) -> {
-			if (config.nofog) {
-				config.nofog = false;
-				waitforit = 0;
-			}
-		});
-
 		// ENTITY TICKER
 		ClientEntityEvents.ENTITY_LOAD.register((entity, _) -> {
 			if (entity instanceof Player player && !(player instanceof LocalPlayer)) {
@@ -453,8 +445,6 @@ public class EclipseClient implements ClientModInitializer {
 				loadedPlayers.remove(player);
 			}
 		});
-
-
 
 		// COMMANDS
 		ClientCommandRegistrationCallback.EVENT.register((dispatcher, _) -> {
@@ -491,6 +481,35 @@ public class EclipseClient implements ClientModInitializer {
 							)
 					)
 			);
+
+			// WKIJANG FOR {ARGUMENT}
+			dispatcher.register(ClientCommands.literal("wiki")
+					.then(ClientCommands.argument("for", StringArgumentType.string())
+							.executes(context -> {
+								String argument = StringArgumentType.getString(context, "for");
+								if (argument.isEmpty()) return 1;
+								argument.toLowerCase().replace(" ", "_").replace("minecraft:", "");
+                                try {
+                                    Wikijang.openWikiPage(argument);
+                                } catch (IOException | URISyntaxException e) {
+                                    throw new RuntimeException(e);
+                                }
+                                return 1;
+							})
+					)
+			);
+
+			// WKIJANG FOR HAND
+			dispatcher.register(ClientCommands.literal("wikihand")
+				.executes(context -> {
+					Player player = context.getSource().getPlayer();
+					try {
+						Wikijang.openWikiPage(player.getMainHandItem().getItem().toString().replace("minecraft:", ""));
+					} catch (IOException | URISyntaxException e) {
+						throw new RuntimeException(e);
+					}
+                    return 1;
+				}));
 
 			dispatcher.register(ClientCommands.literal("timer")
 
@@ -553,57 +572,33 @@ public class EclipseClient implements ClientModInitializer {
 
 		// FPS DISPLAY
 		if (config.fps) {
-			graphics.text(
-					Minecraft.getInstance().font,
-					fps,
-					config.fpsX,
-					config.fpsY,
-					0xFFFFFFFF
-			);
+			fpsWidget.text = fps;
+			fpsWidget.render(graphics);
 		}
 
 		// TIMER DISPLAY
 		if (config.shown) {
-			graphics.text(
-					Minecraft.getInstance().font,
-					config.timer,
-					config.timerX,
-					config.timerY,
-					0xFFFFFFFF
-			);
+			timerWidget.text = config.timer;
+			timerWidget.render(graphics);
 		}
 
 		// SPRINT DISPLAY
 		if (config.sprintVisual) {
-			graphics.text(
-					Minecraft.getInstance().font,
-					config.sprint ? "SPRINTING" : "WALKING",
-					config.sprintX,
-					config.sprintY,
-					0xFFFFFFFF
-			);
+			sprintWidget.text = config.sprint ? "SPRINTING" : "WALKING";
+			sprintWidget.render(graphics);
 		}
 
 		// CPS DISPLAY
 		if (config.cps) {
-			graphics.text(
-					Minecraft.getInstance().font,
-					cps,
-					config.cpsX,
-					config.cpsY,
-					0xFFFFFFFF
-			);
+			cpsWidget.text = cps;
+			cpsWidget.render(graphics);
 		}
 
 		// PING DISPLAY
 		if (config.pingSelf) {
-			graphics.text(
-					Minecraft.getInstance().font,
-					ping,
-					config.pingX,
-					config.pingY,
-					pingint < 50 ? 0xFF00FF00 : pingint < 200 ? 0xFFFFA500 : 0xFFFF0000
-			);
+			pingWidget.text = ping;
+			pingWidget.render(graphics);
+			pingWidget.color = pingint < 50 ? 0xFF00FF00 : (pingint < 200 ? 0xFFFFA500 : 0xFFFF0000);
 		}
 	}
 }

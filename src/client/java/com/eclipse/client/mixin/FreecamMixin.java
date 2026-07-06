@@ -28,7 +28,7 @@ public class FreecamMixin {
             int light,
             CallbackInfo ci
 	) {
-		if (hand == InteractionHand.MAIN_HAND && EclipseClient.freecam) {
+		if ((hand == InteractionHand.MAIN_HAND || hand == InteractionHand.OFF_HAND) && EclipseClient.freecam) {
 			ci.cancel();
 		}
 	}

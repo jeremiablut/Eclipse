@@ -1,10 +1,13 @@
 package com.eclipse.client.ConfigScreen;
 
 import com.eclipse.client.EclipseClient;
+import com.eclipse.client.ui.EclipseButton;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+
+import static com.eclipse.client.ConfigScreen.CustomScreen.buttonHeight;
+import static com.eclipse.client.ConfigScreen.CustomScreen.buttonWidth;
 
 public class CPSConfig extends Screen {
     public CPSConfig(Component title) {
@@ -13,23 +16,27 @@ public class CPSConfig extends Screen {
 
     @Override
     protected void init() {
-        int buttonWidth = 120;
-        int buttonHeight = 20;
-        int x = this.width / 5 * 2;
+        int x = this.width / 2 - buttonWidth / 2;
 
         String call = "CPS: ";
 
         this.addRenderableWidget(
-                Button.builder(Component.literal("«"), (btn) -> {
-                    Minecraft.getInstance().setScreen(new CustomScreen(Component.empty()));
-                }).bounds(0, 40, 40, 20).build()
+                new EclipseButton(
+                        0, 40, 40, 20,
+                        Component.literal("«"),
+                        (btn) -> Minecraft.getInstance().setScreen(new CustomScreen(Component.empty()))
+                )
         );
 
         this.addRenderableWidget(
-                Button.builder(Component.literal(call + EclipseClient.getCPS()), (btn) -> {
-                    EclipseClient.setCPS(!EclipseClient.getCPS());
-                    btn.setMessage(Component.nullToEmpty(call + EclipseClient.getCPS()));
-                }).bounds(x, 40, buttonWidth, buttonHeight).build()
+                new EclipseButton(
+                        x, 40, buttonWidth, buttonHeight,
+                        Component.literal(call + EclipseClient.getCPS()),
+                        (btn) -> {
+                            EclipseClient.setCPS(!EclipseClient.getCPS());
+                            btn.setMessage(Component.nullToEmpty(call + EclipseClient.getCPS()));
+                        }
+                )
         );
     }
 
