@@ -4,38 +4,28 @@
 package com.eclipse.client;
 
 import com.eclipse.client.ConfigScreen.CustomScreen;
-import com.eclipse.client.ConfigScreen.Drager;
 import com.eclipse.client.config.ConfigManager;
 import com.eclipse.client.config.ModConfig;
-import com.mojang.blaze3d.platform.Window;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
-import com.mojang.brigadier.builder.ArgumentBuilder;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.fabricmc.fabric.api.event.player.*;
-import net.fabricmc.fabric.impl.menu.client.ClientNetworking;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.toasts.SystemToast;
-import net.minecraft.client.multiplayer.chat.LoggedChatEvent;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.parsing.packrat.commands.CommandArgumentParser;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 
 import org.lwjgl.glfw.GLFW;
@@ -52,7 +42,7 @@ public class EclipseClient implements ClientModInitializer {
 	public static boolean freecam = false, shouldSend = false;
 	public static int awaitGet = 0;
 	private static long lastChange = 0, lastChangeRef = 0;
-	private static ModConfig config;
+	public static ModConfig config;
 	public static FreecamEntity freecamEntity;
 	private static String fps, cps = "0 | 0", ping = "0ms";
     private static int pingint = 0;
@@ -70,7 +60,7 @@ public class EclipseClient implements ClientModInitializer {
 
 	public static Map<UUID, String> eclipsePlayerPrefixes = new HashMap<>();
 
-	private static WidgetHUD fpsWidget,
+	public static WidgetHUD fpsWidget,
 			timerWidget,
 			sprintWidget,
 			cpsWidget,
@@ -89,7 +79,6 @@ public class EclipseClient implements ClientModInitializer {
 
 	// FPS TOGGLE
 	public static void toggleFPS() {
-		Minecraft mc = Minecraft.getInstance();
 		config.fps = !config.fps;
 		ConfigManager.save();
 	}
@@ -117,21 +106,18 @@ public class EclipseClient implements ClientModInitializer {
 
 	// TIMER CONTROLLER
 	public static void controlTimer(String action) {
-		Minecraft mc = Minecraft.getInstance();
 		config.status = action;
 		ConfigManager.save();
 	}
 
 	// TIMER TOGGLE
 	public static void toggleTimer() {
-		Minecraft mc = Minecraft.getInstance();
 		config.shown = !config.shown;
 		ConfigManager.save();
 	}
 
 	// TIMER RESTART
 	public static void timerRestart() {
-		Minecraft mc = Minecraft.getInstance();
 		config.status = "restarted";
 		config.ticks = 0;
 		config.seconds = 0;
@@ -182,7 +168,6 @@ public class EclipseClient implements ClientModInitializer {
 
 	// TOGGLE GAMMA
 	public static void toggleGamma() {
-		Minecraft mc = Minecraft.getInstance();
 		config.gamma = !config.gamma;
 		ConfigManager.save();
 	}
@@ -309,16 +294,15 @@ public class EclipseClient implements ClientModInitializer {
 		ClientTickEvents.END_CLIENT_TICK.register((minecraft -> {
 			var activePlayer = minecraft.player;
 
-			Window window = minecraft.getWindow();
-
 			if (activePlayer == null) return;
+
+
 
 			// KEYMAPPINGS
 			// SPRINT TOGGLE
-			while (ts.consumeClick() && config.autoSprint) {
+			while (ts.consumeClick()) {
 				config.sprint = !config.sprint;
 				ConfigManager.save();
-				if (config.sprintVisual) return;
 			}
 
 			// FPS TOGGLE
@@ -344,7 +328,7 @@ public class EclipseClient implements ClientModInitializer {
 			}
 
 			// TOGGLE SPRINT
-			if (config.sprint && config.autoSprint && !activePlayer.isInLiquid()) activePlayer.setSprinting(true);
+			if (config.sprint && !activePlayer.isInLiquid()) activePlayer.setSprinting(config.sprint);
 
 			// FPS SETTING
 			if (config.fps) {
@@ -373,28 +357,6 @@ public class EclipseClient implements ClientModInitializer {
 			if (Objects.requireNonNull(minecraft.getConnection()).getPlayerInfo(activePlayer.getUUID()) != null) {
 				ping = Objects.requireNonNull(minecraft.getConnection().getPlayerInfo(activePlayer.getUUID())).getLatency() + "ms";
 				pingint = Objects.requireNonNull(minecraft.getConnection().getPlayerInfo(activePlayer.getUUID())).getLatency();
-			}
-
-			// DRAGGER
-			if (minecraft.screen instanceof Drager) {
-				if (GLFW.glfwGetMouseButton(window.handle(), 0) == GLFW.GLFW_PRESS) {
-					config.fpsV = fpsWidget.pos;
-					fpsWidget.refresh();
-
-					config.timerV = timerWidget.pos;
-					timerWidget.refresh();
-
-					config.sprintV = sprintWidget.pos;
-					sprintWidget.refresh();
-
-					config.cpsV = cpsWidget.pos;
-					cpsWidget.refresh();
-
-					config.pingV = pingWidget.pos;
-					pingWidget.refresh();
-				} else {
-					selected = 0;
-				}
 			}
 
 			// TIMER SWITCHER
@@ -458,12 +420,10 @@ public class EclipseClient implements ClientModInitializer {
 
 			// TOGGLE FREECAM
 			dispatcher.register(ClientCommands.literal("freecam")
-					.then(ClientCommands.literal("toggle")
-							.executes(context -> {
-								Freecam.toggle();
-								return 1;
-							})
-					)
+									.executes(context -> {
+										Freecam.toggle();
+										return 1;
+									})
 
 					// CHANGE SPEED
 					.then(ClientCommands.literal("speed")
@@ -482,7 +442,7 @@ public class EclipseClient implements ClientModInitializer {
 					)
 			);
 
-			// WKIJANG FOR {ARGUMENT}
+			// WIKIJANG FOR {ARGUMENT}
 			dispatcher.register(ClientCommands.literal("wiki")
 					.then(ClientCommands.argument("for", StringArgumentType.string())
 							.executes(context -> {
@@ -499,7 +459,7 @@ public class EclipseClient implements ClientModInitializer {
 					)
 			);
 
-			// WKIJANG FOR HAND
+			// WIKIJANG FOR HAND
 			dispatcher.register(ClientCommands.literal("wikihand")
 				.executes(context -> {
 					Player player = context.getSource().getPlayer();

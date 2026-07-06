@@ -3,7 +3,7 @@ package com.eclipse.client.config;
 import com.eclipse.client.Vec2I;
 
 public class ModConfig {
-    public boolean fps = false, nofog = true, sprint = true, cacheSprint, shown = false, digital = true, autoSprint = true, sprintVisual = true, gamma = true, cps = true, pingSelf = true, pingOthers = true;
+    public boolean fps = false, nofog = true, sprint = true, cacheSprint, shown = false, digital = true, sprintVisual = true, gamma = true, cps = true, pingSelf = true, pingOthers = true;
     public float distance = 1f;
     public String status, timer, name;
     public int ticks = 0, seconds, minutes = 0, hours = 0;

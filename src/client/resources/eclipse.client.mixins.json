@@ -19,8 +19,7 @@
 		"WindowMixin",
 		"PauseScreenMixin",
 		"ChunkCullingMixin",
-		"FrustumMixin",
-		"ChatComponentMixin"
+		"FrustumMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
