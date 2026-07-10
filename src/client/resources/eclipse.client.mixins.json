@@ -5,7 +5,6 @@
 	"client": [
       	"FreecamMixin",
 	  	"FullbrightMixin",
-	  	"UnboundRotationMixin",
 	  	"FogRemoverMixin",
 		"PlayerMixin",
 		"MouseHandlerMixin",
@@ -19,7 +18,10 @@
 		"WindowMixin",
 		"PauseScreenMixin",
 		"ChunkCullingMixin",
-		"FrustumMixin"
+		"FrustumMixin",
+		"GuiMixin",
+		"ClientClockManagerMixin",
+		"ClockInstanceAccessor"
 	],
 	"injectors": {
 		"defaultRequire": 1

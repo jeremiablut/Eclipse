@@ -64,14 +64,5 @@ public class Freecam {
         } else {
             enable();
         }
-
-        mc.getToastManager().addToast(
-                SystemToast.multiline(
-                        mc,
-                        SystemToast.SystemToastId.NARRATOR_TOGGLE,
-                        Component.literal("Freecam"),
-                        Component.literal("is now " + freecam)
-                )
-        );
     }
 }

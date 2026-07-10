@@ -18,7 +18,7 @@ public class CPSConfig extends Screen {
     protected void init() {
         int x = this.width / 2 - buttonWidth / 2;
 
-        String call = "CPS: ";
+        String call = "CPS";
 
         this.addRenderableWidget(
                 new EclipseButton(
@@ -31,10 +31,10 @@ public class CPSConfig extends Screen {
         this.addRenderableWidget(
                 new EclipseButton(
                         x, 40, buttonWidth, buttonHeight,
-                        Component.literal(call + EclipseClient.getCPS()),
+                        Component.literal(call).withColor(EclipseClient.config.cps ? 0x00c800 : 0xc80700),
                         (btn) -> {
-                            EclipseClient.setCPS(!EclipseClient.getCPS());
-                            btn.setMessage(Component.nullToEmpty(call + EclipseClient.getCPS()));
+                            EclipseClient.config.cps = !EclipseClient.config.cps;
+                            btn.setMessage(Component.literal(call).withColor(EclipseClient.config.cps ? 0x00c800 : 0xc80700));
                         }
                 )
         );

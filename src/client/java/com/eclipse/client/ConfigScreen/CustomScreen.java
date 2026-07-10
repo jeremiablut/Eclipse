@@ -12,9 +12,10 @@ public class CustomScreen extends Screen {
 
     private int w;
     public static int buttonWidth = 60, buttonHeight = 40;
+    private static int distance = 10;
 
     public int ind(int order) {
-        return order*40 + 10 * order;
+        return order*buttonHeight + distance * order;
     }
 
     private int row(int index) {
@@ -68,8 +69,8 @@ public class CustomScreen extends Screen {
         this.addRenderableWidget(
                 new EclipseButton(
                         row(5), ind(2), buttonWidth, buttonHeight,
-                        Component.literal("NoFog"),
-                        (btn) -> Minecraft.getInstance().setScreen(new FogConfig(Component.empty()))
+                        Component.literal("Overlay"),
+                        (btn) -> Minecraft.getInstance().setScreen(new OverlayConfig(Component.empty()))
                 )
         );
 
@@ -88,5 +89,35 @@ public class CustomScreen extends Screen {
                         (btn) -> Minecraft.getInstance().setScreen(new GammaConfig(Component.empty()))
                 )
         );
+
+        this.addRenderableWidget(
+                new EclipseButton(
+                        row(5), ind(3), buttonWidth, buttonHeight,
+                        Component.literal("Server"),
+                        (btn) -> Minecraft.getInstance().setScreen(new ServerConfig(Component.empty()))
+                )
+        );
+
+        this.addRenderableWidget(
+                new EclipseButton(
+                        row(6), ind(3), buttonWidth, buttonHeight,
+                        Component.literal("Armor"),
+                        (btn) -> Minecraft.getInstance().setScreen(new ArmourConfig(Component.empty()))
+                )
+        );
+
+        this.addRenderableWidget(
+                new EclipseButton(
+                        row(4), ind(4), buttonWidth, buttonHeight,
+                        Component.literal("Witfit"),
+                        (btn) -> Minecraft.getInstance().setScreen(new WitfitConfig(Component.empty()))
+                )
+        );
+    }
+
+    @Override
+    public void tick() {
+        buttonWidth = 60 * Minecraft.getInstance().getWindow().getWidth() / 2560;
+        buttonHeight = 40 * Minecraft.getInstance().getWindow().getHeight() / 1440;
     }
 }

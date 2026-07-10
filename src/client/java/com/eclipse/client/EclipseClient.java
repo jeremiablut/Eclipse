@@ -6,6 +6,9 @@ package com.eclipse.client;
 import com.eclipse.client.ConfigScreen.CustomScreen;
 import com.eclipse.client.config.ConfigManager;
 import com.eclipse.client.config.ModConfig;
+import com.eclipse.client.enums.TimerAction;
+import com.eclipse.client.ui.Widget;
+import com.eclipse.client.ui.WidgetString;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import net.fabricmc.api.ClientModInitializer;
@@ -13,6 +16,7 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallba
 import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.fabricmc.fabric.api.event.player.*;
@@ -20,17 +24,21 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.components.toasts.SystemToast;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import org.lwjgl.glfw.GLFW;
 
-import javax.swing.*;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -44,13 +52,14 @@ public class EclipseClient implements ClientModInitializer {
 	private static long lastChange = 0, lastChangeRef = 0;
 	public static ModConfig config;
 	public static FreecamEntity freecamEntity;
-	private static String fps, cps = "0 | 0", ping = "0ms";
-    private static int pingint = 0;
+	private static String fps, cps = "0 | 0", serverIP = "";
+    private static int pingint = 10;
 	private FreecamController freecamController;
 	public static int selected = 0;
 	public static CPSCounter leftCPS = new CPSCounter();
 	public static CPSCounter rightCPS = new CPSCounter();
-    public static final KeyMapping.Category CATEGORY
+	public static TimerController timerController;
+	public static final KeyMapping.Category CATEGORY
 			= KeyMapping.Category.register(
 			Identifier.fromNamespaceAndPath("eclipse", "controlys")
 	);
@@ -60,11 +69,16 @@ public class EclipseClient implements ClientModInitializer {
 
 	public static Map<UUID, String> eclipsePlayerPrefixes = new HashMap<>();
 
-	public static WidgetHUD fpsWidget,
+	public static WidgetString fpsWidget,
 			timerWidget,
 			sprintWidget,
 			cpsWidget,
-			pingWidget;
+			pingWidget,
+			serverWidget;
+
+	public static Widget
+			armourHUD,
+			witfitHUD;
 
 	// PVP SETTINGS
 	private void setPvp() {
@@ -83,49 +97,6 @@ public class EclipseClient implements ClientModInitializer {
 		ConfigManager.save();
 	}
 
-	// TIMER GEN (DON'T LOOK IN HERE)
-	public void genTimer() {
-		if (config.digital) {
-			if (config.hours > 0) {
-				config.timer = String.format("%d:%02d:%02d", config.hours, config.minutes, config.seconds);
-			} else if (config.minutes > 0) {
-				config.timer = String.format("%d:%02d", config.minutes, config.seconds);
-			} else {
-				config.timer = String.valueOf(config.seconds);
-			}
-		} else {
-			if (config.hours > 0) {
-				config.timer = String.format("%dh %02dmin %02ds", config.hours, config.minutes, config.seconds);
-			} else if (config.minutes > 0) {
-				config.timer = String.format("%dmin %02ds", config.minutes, config.seconds);
-			} else {
-				config.timer = config.seconds + "s";
-			}
-		}
-	}
-
-	// TIMER CONTROLLER
-	public static void controlTimer(String action) {
-		config.status = action;
-		ConfigManager.save();
-	}
-
-	// TIMER TOGGLE
-	public static void toggleTimer() {
-		config.shown = !config.shown;
-		ConfigManager.save();
-	}
-
-	// TIMER RESTART
-	public static void timerRestart() {
-		config.status = "restarted";
-		config.ticks = 0;
-		config.seconds = 0;
-		config.minutes = 0;
-		config.hours = 0;
-		ConfigManager.save();
-	}
-
 	// RESET POSIS
 	public static void resetPos() {
 		config.fpsV = fpsWidget.reset();
@@ -137,111 +108,15 @@ public class EclipseClient implements ClientModInitializer {
 		config.sprintV = sprintWidget.reset();
 
 		config.timerV = timerWidget.reset();
-	}
 
-	// GET GAMMA
-	public static boolean getGamma() {
-		return config.gamma;
-	}
+		config.serverV = serverWidget.reset();
 
-	// GET SPRINT
-	public static boolean getSprint() {
-		return config.sprint;
-	}
-
-	// SET SPRINT
-	public static void setSprint(boolean b) {
-		config.sprint = b;
-		ConfigManager.save();
-	}
-
-	// GET SPRINT VISUAL
-	public static boolean getSprintVisual() {
-		return config.sprintVisual;
-	}
-
-	// SET SPRINT VISUAL
-	public static void setSprintVisual(boolean b) {
-		config.sprintVisual = b;
-		ConfigManager.save();
+		config.armorV = armourHUD.reset();
 	}
 
 	// TOGGLE GAMMA
 	public static void toggleGamma() {
 		config.gamma = !config.gamma;
-		ConfigManager.save();
-	}
-
-	// SET PINGOTHERS
-	public static void setPingOthers(boolean b) {
-		config.pingOthers = b;
-		ConfigManager.save();
-	}
-
-	// SET PINGSELF
-	public static void setPingSelf(boolean b) {
-		config.pingSelf = b;
-		ConfigManager.save();
-	}
-
-	// GET PINGOTHERS
-	public static boolean getPingOthers() {
-		return config.pingOthers;
-	}
-
-	// GET PINGSELF
-	public static boolean getPingSelf() {
-		return config.pingSelf;
-	}
-
-	// SET NOFOG
-	public static void setNoFog(boolean b) {
-		config.nofog = b;
-		ConfigManager.save();
-	}
-
-
-	// GET NOFOG
-	public static boolean getNoFog() {
-		return config.nofog;
-	}
-
-	// SET FPS
-	public static void setFPS(boolean b) {
-		config.fps = b;
-		ConfigManager.save();
-	}
-
-	// GET FPS
-	public static boolean getFPS() {
-		return config.fps;
-	}
-
-	// SET TIMER
-	public static void setTimer(boolean b) {
-		config.shown = b;
-		ConfigManager.save();
-	}
-
-	// GET TIMER
-	public static boolean getTimer() {
-		return config.shown;
-	}
-
-	// SET TIMER
-	public static void setCPS(boolean b) {
-		config.cps = b;
-		ConfigManager.save();
-	}
-
-	// GET CPS
-	public static boolean getCPS() {
-		return config.cps;
-	}
-
-	// SET GAMMA
-	public static void setGamma(boolean b) {
-		config.gamma = b;
 		ConfigManager.save();
 	}
 
@@ -262,11 +137,54 @@ public class EclipseClient implements ClientModInitializer {
 			ConfigManager.save();
 		}
 
-		fpsWidget = new WidgetHUD(config.fpsV, fps, new Vec2I(10, 10));
-		timerWidget = new WidgetHUD(config.timerV, config.timer, new Vec2I(10, 20));
-		sprintWidget = new WidgetHUD(config.sprintV, config.sprint ? "SPRINTING" : "WALKING", new Vec2I(10, 30));
-		cpsWidget = new WidgetHUD(config.cpsV, cps, new Vec2I(10, 40));
-		pingWidget = new WidgetHUD(config.pingV, ping, new Vec2I(10, 50));
+		timerController = new TimerController(config);
+
+		fpsWidget = new WidgetString(config.fpsV, fps, new Vec2I(10, 10));
+		timerWidget = new WidgetString(config.timerV, config.timer, new Vec2I(10, 20));
+		sprintWidget = new WidgetString(config.sprintV, config.sprint ? "SPRINTING" : "WALKING", new Vec2I(10, 30));
+		cpsWidget = new WidgetString(config.cpsV, cps, new Vec2I(10, 40));
+		pingWidget = new WidgetString(config.pingV, config.pingPrefix.custom.toString() + pingint + config.pingSuffix.custom.toString(), new Vec2I(10, 50));
+		serverWidget = new WidgetString(config.serverV, "        ", new Vec2I(10, 60));
+		armourHUD = new Widget(config.armorV, new Vec2I(10, 70), graphics -> {
+			ItemStack head = Minecraft.getInstance().player.getItemBySlot(EquipmentSlot.HEAD);
+			ItemStack chest = Minecraft.getInstance().player.getItemBySlot(EquipmentSlot.CHEST);
+			ItemStack legs = Minecraft.getInstance().player.getItemBySlot(EquipmentSlot.LEGS);
+			ItemStack feet = Minecraft.getInstance().player.getItemBySlot(EquipmentSlot.FEET);
+			if (head.getMaxDamage() != 0) {
+				graphics.fakeItem(head, config.armorV.x, config.armorV.y);
+				graphics.text(Minecraft.getInstance().font, (100 - (head.getDamageValue() * 100) / head.getMaxDamage()) + "%", config.armorV.x + 15, config.armorV.y + 2, 0xFFFFFFFF);
+			}
+
+			if (chest.getMaxDamage() != 0) {
+				graphics.fakeItem(chest, config.armorV.x, config.armorV.y + 15);
+				graphics.text(Minecraft.getInstance().font, (100 - (chest.getDamageValue() * 100) / chest.getMaxDamage()) + "%", config.armorV.x + 15, config.armorV.y + 17, 0xFFFFFFFF);
+			}
+
+			if (legs.getMaxDamage() != 0) {
+				graphics.fakeItem(legs, config.armorV.x, config.armorV.y + 30);
+				graphics.text(Minecraft.getInstance().font, (100 - (legs.getDamageValue() * 100) / legs.getMaxDamage()) + "%", config.armorV.x + 15, config.armorV.y + 32, 0xFFFFFFFF);
+			}
+
+			if (feet.getMaxDamage() != 0) {
+				graphics.fakeItem(feet, config.armorV.x, config.armorV.y + 45);
+				graphics.text(Minecraft.getInstance().font, (100 - (feet.getDamageValue() * 100) / feet.getMaxDamage()) + "%", config.armorV.x + 15, config.armorV.y + 47, 0xFFFFFFFF);
+			}
+		}, 10, 60
+		);
+
+		witfitHUD = new Widget(config.witfitV, new Vec2I(10, 120), graphics -> {
+			Minecraft client = Minecraft.getInstance();
+			if (client.hitResult != null && client.hitResult.getType() == HitResult.Type.BLOCK) {
+				BlockHitResult blockHit = (BlockHitResult) client.hitResult;
+				BlockPos pos = blockHit.getBlockPos();
+
+				BlockState state = client.level.getBlockState(pos);
+				Block block = state.getBlock();
+				graphics.fill(config.witfitV.x, config.witfitV.y, config.witfitV.x + 100, config.witfitV.y + 29, 0x88000000);
+				graphics.fakeItem(block.asItem().getDefaultInstance(), config.witfitV.x + 5, config.witfitV.y + 7);
+				graphics.text(Minecraft.getInstance().font, block.asItem().toString().replace("_", " ").replace("minecraft:", ""), config.witfitV.x + 24, config.witfitV.y + 8, 0xFFFFFFFF);
+			}
+		}, 100, 29);
 
 		freecamController = new FreecamController();
 
@@ -296,14 +214,14 @@ public class EclipseClient implements ClientModInitializer {
 
 			if (activePlayer == null) return;
 
-
-
 			// KEYMAPPINGS
 			// SPRINT TOGGLE
 			while (ts.consumeClick()) {
 				config.sprint = !config.sprint;
 				ConfigManager.save();
 			}
+
+			if (config.timerAction == TimerAction.PLAY) timerController.tick();
 
 			// FPS TOGGLE
 			while (tf.consumeClick()) {
@@ -332,7 +250,7 @@ public class EclipseClient implements ClientModInitializer {
 
 			// FPS SETTING
 			if (config.fps) {
-				fps = "FPS: " + minecraft.getFps();
+				fps = config.fpsPrefix.custom.toString() + minecraft.getFps() + config.fpsSuffix.custom.toString();
 			}
 
 			// GET AWAIT
@@ -355,23 +273,9 @@ public class EclipseClient implements ClientModInitializer {
 
 			// PING MAKER
 			if (Objects.requireNonNull(minecraft.getConnection()).getPlayerInfo(activePlayer.getUUID()) != null) {
-				ping = Objects.requireNonNull(minecraft.getConnection().getPlayerInfo(activePlayer.getUUID())).getLatency() + "ms";
 				pingint = Objects.requireNonNull(minecraft.getConnection().getPlayerInfo(activePlayer.getUUID())).getLatency();
 			}
 
-			// TIMER SWITCHER
-			config.seconds = config.ticks / 20;
-			if ("started".equals(config.status)) config.ticks++;
-			genTimer();
-			if (config.seconds >= 60) {
-				config.ticks = 0;
-				if (config.minutes < 60) config.minutes++;
-				else {
-					config.minutes = 0;
-					config.hours++;
-				}
-				ConfigManager.save();
-			}
 
 			if (Minecraft.getInstance().screen != null) return;
 			freecamController.tick(activePlayer);
@@ -406,6 +310,13 @@ public class EclipseClient implements ClientModInitializer {
 				loadedPlayersUUID.remove(player.getUUID());
 				loadedPlayers.remove(player);
 			}
+		});
+
+		// SERVER REGISTER
+		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
+			client.execute(() -> {
+				serverIP = Minecraft.getInstance().isSingleplayer() ? Minecraft.getInstance().getSingleplayerServer().name() : Minecraft.getInstance().getCurrentServer().ip;
+			});
 		});
 
 		// COMMANDS
@@ -448,7 +359,7 @@ public class EclipseClient implements ClientModInitializer {
 							.executes(context -> {
 								String argument = StringArgumentType.getString(context, "for");
 								if (argument.isEmpty()) return 1;
-								argument.toLowerCase().replace(" ", "_").replace("minecraft:", "");
+								argument = argument.toLowerCase().replace(" ", "_").replace("minecraft:", "");
                                 try {
                                     Wikijang.openWikiPage(argument);
                                 } catch (IOException | URISyntaxException e) {
@@ -476,7 +387,7 @@ public class EclipseClient implements ClientModInitializer {
 					// START TIMER
 					.then(ClientCommands.literal("start")
 							.executes(context -> {
-								controlTimer("started");
+								timerController.controlTimer(TimerAction.PLAY);
 								return 1;
 							})
 					)
@@ -484,7 +395,7 @@ public class EclipseClient implements ClientModInitializer {
 					// RESTART TIMER
 					.then(ClientCommands.literal("restart")
 							.executes(context -> {
-								timerRestart();
+								timerController.controlTimer(TimerAction.RESTART);
 								return 1;
 							})
 					)
@@ -492,7 +403,7 @@ public class EclipseClient implements ClientModInitializer {
 					// STOP TIMER
 					.then(ClientCommands.literal("stop")
 							.executes(context -> {
-								controlTimer("stopped");
+								timerController.controlTimer(TimerAction.STOPPED);
 								return 1;
 							})
 					)
@@ -500,7 +411,7 @@ public class EclipseClient implements ClientModInitializer {
 					// TOGGLE VISIBILITY
 					.then(ClientCommands.literal("toggle")
 							.executes(context -> {
-								toggleTimer();
+								timerController.toggleTimer();
 								return 1;
 							})
 					)
@@ -509,15 +420,7 @@ public class EclipseClient implements ClientModInitializer {
 					.then(ClientCommands.literal("togglemode")
 							.executes(context -> {
 								config.digital = !config.digital;
-								Minecraft mc = Minecraft.getInstance();
-								mc.getToastManager().addToast(
-										SystemToast.multiline(
-												mc,
-												SystemToast.SystemToastId.NARRATOR_TOGGLE,
-												Component.nullToEmpty("Timer"),
-												Component.nullToEmpty("Digital mode is now " + config.digital)
-										)
-								);
+								ConfigManager.save();
 								return 1;
 							})
 					)
@@ -544,7 +447,7 @@ public class EclipseClient implements ClientModInitializer {
 
 		// SPRINT DISPLAY
 		if (config.sprintVisual) {
-			sprintWidget.text = config.sprint ? "SPRINTING" : "WALKING";
+			sprintWidget.text = config.sprint ? config.sprinting.custom.toString() : config.walking.custom.toString();
 			sprintWidget.render(graphics);
 		}
 
@@ -556,9 +459,25 @@ public class EclipseClient implements ClientModInitializer {
 
 		// PING DISPLAY
 		if (config.pingSelf) {
-			pingWidget.text = ping;
+			pingWidget.text = config.pingPrefix.custom.toString() + pingint + config.pingSuffix.custom.toString();
 			pingWidget.render(graphics);
 			pingWidget.color = pingint < 50 ? 0xFF00FF00 : (pingint < 200 ? 0xFFFFA500 : 0xFFFF0000);
+		}
+
+		// SERVER DISPLAY
+		if (config.server) {
+			serverWidget.text = Minecraft.getInstance().isSingleplayer() ? Minecraft.getInstance().getSingleplayerServer().getMotd() : Minecraft.getInstance().getCurrentServer().ip;
+			serverWidget.render(graphics);
+		}
+
+		// ARMOR STATUS DISPLAY
+		if (config.armor) {
+			armourHUD.render(graphics);
+		}
+
+		// WITFIT DISPLAY
+		if (config.witfit) {
+			witfitHUD.render(graphics);
 		}
 	}
 }

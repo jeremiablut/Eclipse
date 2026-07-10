@@ -1,35 +1,33 @@
-package com.eclipse.client;
+package com.eclipse.client.ui;
 
+import com.eclipse.client.Vec2I;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 
+import java.util.function.Consumer;
+
 import static com.eclipse.client.EclipseClient.selected;
 
-public class WidgetHUD {
+public class Widget {
     private int width, height;
     private static final Minecraft minecraft = Minecraft.getInstance();
 
+    public Consumer<GuiGraphicsExtractor> graphicer;
     public boolean isHovering;
-    public String text;
     public Vec2I pos, oldPos;
-    public int selct, color = 0xFFFFFFFF;
+    public int selct;
 
-    public WidgetHUD(Vec2I pos, String text, Vec2I oldPos) {
-        this.text = text;
+    public Widget(Vec2I pos, Vec2I oldPos, Consumer<GuiGraphicsExtractor> graphicer, int width, int height) {
         this.pos = pos;
         this.oldPos = oldPos;
         this.selct = oldPos.y / 10;
+        this.graphicer = graphicer;
+        this.width = width;
+        this.height = height;
     }
 
     public void render(GuiGraphicsExtractor graphics) {
-        if (text == null) return;
-        graphics.text(
-                minecraft.font,
-                text,
-                pos.x,
-                pos.y,
-                color
-        );
+        graphicer.accept(graphics);
     }
 
     public Vec2I reset() {
@@ -46,9 +44,6 @@ public class WidgetHUD {
                 * minecraft.getWindow().getGuiScaledHeight()
                 / minecraft.getWindow().getScreenHeight();
 
-        width = minecraft.font.width(text);
-        height = minecraft.font.lineHeight;
-
         isHovering =
                 mouseX >= pos.x &&
                         mouseX <= pos.x + width &&
@@ -56,12 +51,12 @@ public class WidgetHUD {
                         mouseY <= pos.y + height;
 
         if (isHovering && (selected == 0 || selected == selct)) {
-            pos.x = ((int) (mouseX - width / 2) / 10) * 10;
-            pos.y = ((int) (mouseY + height / 2) / 10) * 10;
+            pos.x = ((int)((mouseX - width / 2) / 10) * 10);
+            pos.y = ((int)((mouseY - height / 2) / 10) * 10);
             selected = selct;
         } else if (selected == selct) {
-            pos.x = ((int) (mouseX - width / 2) / 10) * 10;
-            pos.y = ((int) (mouseY + height / 2) / 10) * 10;
+            pos.x = ((int)((mouseX - width / 2) / 10) * 10);
+            pos.y = ((int)((mouseY - height / 2) / 10) * 10);
         }
     }
 }

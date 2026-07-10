@@ -48,20 +48,29 @@ public class Drager extends Screen {
     @Override
     public void tick() {
         if (GLFW.glfwGetMouseButton(window.handle(), 0) == GLFW.GLFW_PRESS) {
-            config.fpsV = fpsWidget.pos;
+            config.fpsV = fpsWidget.posLocal;
             fpsWidget.refresh();
 
-            config.timerV = timerWidget.pos;
+            config.timerV = timerWidget.posLocal;
             timerWidget.refresh();
 
-            config.sprintV = sprintWidget.pos;
+            config.sprintV = sprintWidget.posLocal;
             sprintWidget.refresh();
 
-            config.cpsV = cpsWidget.pos;
+            config.cpsV = cpsWidget.posLocal;
             cpsWidget.refresh();
 
-            config.pingV = pingWidget.pos;
+            config.pingV = pingWidget.posLocal;
             pingWidget.refresh();
+
+            config.serverV = serverWidget.posLocal;
+            serverWidget.refresh();
+
+            config.armorV = armourHUD.pos;
+            armourHUD.refresh();
+
+            config.witfitV = witfitHUD.pos;
+            witfitHUD.refresh();
             ConfigManager.save();
         } else {
             selected = 0;

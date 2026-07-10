@@ -9,8 +9,8 @@ import net.minecraft.network.chat.Component;
 import static com.eclipse.client.ConfigScreen.CustomScreen.buttonHeight;
 import static com.eclipse.client.ConfigScreen.CustomScreen.buttonWidth;
 
-public class GammaConfig extends Screen {
-    public GammaConfig(Component title) {
+public class ArmourConfig extends Screen {
+    public ArmourConfig(Component title) {
         super(title);
     }
 
@@ -18,15 +18,15 @@ public class GammaConfig extends Screen {
     protected void init() {
         int x = this.width / 2- buttonWidth / 2;
 
-        String call = "Gamma";
+        String call = "Armor";
 
         this.addRenderableWidget(
                 new EclipseButton(
                         x, 40, buttonWidth, buttonHeight,
-                        Component.literal(call).withColor(EclipseClient.config.gamma ? 0x00c800 : 0xc80700),
+                        Component.literal(call).withColor(EclipseClient.config.armor ? 0x00c800 : 0xc80700),
                         (btn) -> {
-                            EclipseClient.config.gamma = !EclipseClient.config.gamma;
-                            btn.setMessage(Component.literal(call).withColor(EclipseClient.config.gamma ? 0x00c800 : 0xc80700));
+                            EclipseClient.config.armor = !EclipseClient.config.armor;
+                            btn.setMessage(Component.literal(call).withColor(EclipseClient.config.armor ? 0x00c800 : 0xc80700));
                         }
                 )
         );

@@ -9,8 +9,8 @@ import net.minecraft.network.chat.Component;
 import static com.eclipse.client.ConfigScreen.CustomScreen.buttonHeight;
 import static com.eclipse.client.ConfigScreen.CustomScreen.buttonWidth;
 
-public class FogConfig extends Screen {
-    public FogConfig(Component title) {
+public class ServerConfig extends Screen {
+    public ServerConfig(Component title) {
         super(title);
     }
 
@@ -18,15 +18,15 @@ public class FogConfig extends Screen {
     protected void init() {
         int x = this.width / 2- buttonWidth / 2;
 
-        String call = "Nofog: ";
+        String call = "Display";
 
         this.addRenderableWidget(
                 new EclipseButton(
                         x, 40, buttonWidth, buttonHeight,
-                        Component.literal(call + EclipseClient.getNoFog()),
+                        Component.literal(call).withColor(EclipseClient.config.server ? 0x00c800 : 0xc80700),
                         (btn) -> {
-                            EclipseClient.setNoFog(!EclipseClient.getNoFog());
-                            btn.setMessage(Component.nullToEmpty(call + EclipseClient.getNoFog()));
+                            EclipseClient.config.server = !EclipseClient.config.server;
+                            btn.setMessage(Component.literal(call).withColor(EclipseClient.config.server ? 0x00c800 : 0xc80700));
                         }
                 )
         );
