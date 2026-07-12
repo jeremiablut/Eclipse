@@ -80,6 +80,9 @@ This Feature adds the ability to use the Minecraft Wiki directly in Minecraft, w
 >- **/wiki+Name** opens the Minecraft Wiki for the item in the browser
 >- **/wikihand** opens the Minecraft Wiki for the item in offhand in the browser
 
+## **W**hat **I**n **T**he **F**ck **I**s **T**hat (**WITFIT**)
+This Feature adds a Widget where the block the player is looking at is displayed.
+
 ### Highlighting other Players with Eclipse Mod
 This feature highlights Players with Eclipse Mod with an EP (and with different Ranks --> upcoming) before name.
 
@@ -90,6 +93,19 @@ https://docs.google.com/forms/d/e/1FAIpQLSdC_3SM02lKfVTV1IyXYU7uZB4V9yEyLHUcJbVV
 
 ## Upcoming
 - [ ] Different Ranks for Markers before name
+
+## Design and Desire UPDATE 1.2.3
+- [x] Now for Version 26.2
+- [x] Performance fix for Timer
+- [x] Pumpkin overlay now toggle able
+- [x] New Design for GUI
+- [x] New Widget for Server Name
+- [x] Added Armor Status Widget
+- [x] Added Time changer
+- [x] Added WITFIT Widget
+- [x] Window ratio support
+- [x] Custom Prefix and Suffix for Widgets
+- [x] Fixed Button position on Serverside Pause menu
 
 ## Design and Furniture UPDATE 1.2.2
 - [x] Redesigning of Config Menu
